@@ -2,6 +2,9 @@
   "id": "guygrigsby-sno",
   "name": "sno",
   "description": "Lightweight spec-driven development plugins",
+  "owner": {
+    "name":"Guy Grigsby"
+  },
   "plugins": [
     {
       "id": "sno",
