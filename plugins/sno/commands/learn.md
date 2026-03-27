@@ -50,7 +50,17 @@ Once all three agents return:
 If the user says "just pick defaults" for any question, pick a reasonable default and document it clearly as a chosen default (not a confirmed requirement).
 
 ### Step 4: Write the spec
-Once all questions are resolved (or defaulted), write `.sno/spec.md`:
+Once all questions are resolved (or defaulted), write `.sno/spec.md`.
+
+**Before writing, re-read every research output and every answer:**
+- `.sno/research/domain.md` — bounded contexts, aggregates, factories, repositories, ports, events, open questions
+- `.sno/research/data-model.md` — entities, relationships, normalization, open questions
+- `.sno/research/codebase.md` — existing patterns, risks, open questions
+- `.sno/research/answers.md` — every user answer and every default chosen
+
+Every finding from the research must land somewhere in the spec. If the domain researcher identified 4 aggregates, all 4 appear in the spec. If the data modeler flagged a 5NF violation, it's in Data Constraints. If the codebase scout found a risk, it's in Context. If an answer resolved an open question, the decision appears in Decisions Log. Nothing gets silently dropped.
+
+The spec structure:
 
 ```markdown
 # Spec: <title>
@@ -102,9 +112,22 @@ Once all questions are resolved (or defaulted), write `.sno/spec.md`:
 
 ## Decisions Log
 - <Decision made>: <rationale> (user-confirmed | default-chosen)
+
+## Research Coverage
+<For each research output, list what was incorporated and what was intentionally excluded with rationale>
 ```
 
-### Step 5: Confirm
+### Step 5: Verify coverage
+Before showing the spec, cross-check:
+- Every aggregate, entity, and bounded context from `domain.md` appears in Domain Model
+- Every entity and relationship from `data-model.md` appears in Data Model
+- Every risk from `codebase.md` is addressed in Context or Requirements
+- Every answer from `answers.md` is reflected in the spec (as a requirement, constraint, or decision)
+- Every open question from all research outputs is either answered (in Decisions Log) or still explicitly open
+
+If anything was dropped, either add it or document why it was excluded in the Research Coverage section.
+
+### Step 6: Confirm
 Show the spec to the user. When they confirm, update `.sno/state.json` phase to `plan`.
 
 ## Rules
@@ -123,4 +146,5 @@ Show the spec to the user. When they confirm, update `.sno/state.json` phase to 
 If `--auto` is set:
 - In step 1, use whatever context is already available. Don't ask the user for more — just brief the agents with what you have.
 - In step 3, pick reasonable defaults for all open questions instead of interviewing the user. Document each as `(default-chosen)`.
-- In step 5, skip confirmation. Write the spec and immediately advance to the plan phase. Continue through remaining phases without stopping.
+- In step 6, skip confirmation. Write the spec and immediately advance to the plan phase. Continue through remaining phases without stopping.
+- Step 5 (coverage verification) still runs — never skip it. A spec that drops research findings causes rework downstream.

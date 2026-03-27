@@ -13,9 +13,30 @@ You are in the **plan** phase of sno. Your goal is to turn the spec into an acti
 
 1. Read `.sno/spec.md`. If it doesn't exist, tell the user to run `/sno:learn` first.
 
-2. **Spawn the `planner` agent** (Opus) to analyze the spec, research outputs, and codebase. It produces the task plan with dependency tracking and wave assignments.
+2. **Spawn the `planner` agent** (Opus) to analyze the spec, research outputs, and codebase. It produces a draft plan AND a list of open questions/ambiguities it found.
 
-3. **Write the agent's output** to `.sno/plan.md` using the structured task format:
+3. **Present open questions first.** Before showing the plan, present any questions the planner identified. These are things that affect task scoping, architecture, or implementation approach that the spec doesn't answer. Wait for the user to answer before proceeding. Examples:
+   - "Should roles be stored in the database or config?"
+   - "Do you need role hierarchy (admin inherits editor permissions) or flat roles?"
+   - "Should this integrate with the existing auth middleware or replace it?"
+
+   If the user says "pick defaults" or similar, the planner should make reasonable choices and note them.
+
+4. **Show the draft plan.** After questions are resolved, show the plan incorporating the user's answers. Include a summary of what can run in parallel:
+   - "**Wave 1** (parallel): tasks 1, 2"
+   - "**Wave 2** (parallel): tasks 3, 5"
+   - "**Wave 3** (sequential): task 4"
+
+5. **Verify coverage.** Before showing the plan to the user, check the planner's coverage matrix. Every "Done when" criterion from the spec must map to at least one task. If anything is uncovered, add tasks or ask the user whether it's in scope. Flag any tasks that don't map to a spec requirement — they may be scope creep.
+
+6. **Review loop.** Ask the user to review. They can:
+   - Request changes ("split task 3", "merge 2 and 4", "add X", "remove Y")
+   - Ask questions about the plan
+   - Approve it
+
+   Iterate until the user approves. Don't rush to approval — a good plan prevents rework.
+
+7. **Write the approved plan** to `.sno/plan.md` using the structured task format:
 
 ```markdown
 # Plan: <title from spec>
@@ -43,12 +64,7 @@ You are in the **plan** phase of sno. Your goal is to turn the spec into an acti
 
 Each task must have all five fields: status, files, verify, done, and dependencies in the heading.
 
-4. Show the plan to the user. Include a summary of what can run in parallel:
-   - "**Wave 1** (parallel): tasks 1, 2"
-   - "**Wave 2** (parallel): tasks 3, 5"
-   - "**Wave 3** (sequential): task 4"
-
-5. Ask if it looks right. When confirmed, update `.sno/state.json` phase to `build`.
+8. Update `.sno/state.json` phase to `build`.
 
 ## Dependency rules
 - Every task must declare `(depends: none)` or `(depends: <task numbers>)`.
@@ -66,4 +82,7 @@ Each task must have all five fields: status, files, verify, done, and dependenci
 ## --auto flag
 
 If `--auto` is set:
-- Skip the user confirmation in step 5. Write the plan and immediately advance to the build phase. Continue through remaining phases without stopping.
+- Still present open questions (step 3) — these MUST be answered even in auto mode, since guessing leads to rework.
+- Skip the review loop (step 6). Write the plan and immediately advance to the build phase. Continue through remaining phases without stopping.
+- Coverage verification (step 5) still runs — never skip it.
+- If the planner has no open questions, proceed directly to writing the plan and advancing.
