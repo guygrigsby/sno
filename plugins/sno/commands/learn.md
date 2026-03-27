@@ -24,23 +24,27 @@ Ask the user what they want to build — or read what they've already said. Get 
 Don't over-interview here. Get the basics, then let the agents dig.
 
 ### Step 2: Launch parallel research agents
-Spawn these three agents **in parallel** using the Agent tool:
+Spawn these five agents **in parallel** using the Agent tool:
 
-1. **domain-researcher** — DDD analysis: bounded contexts, aggregates, entities, ubiquitous language, domain events. Uses Opus.
-2. **data-modeler** — Entity identification, relationship mapping, 5NF normalization analysis. Uses Opus.
-3. **codebase-scout** — Explores existing code for patterns, conventions, relevant modules, risks. Uses Opus.
+1. **prior-art-researcher** — How similar problems are solved in practice: established patterns, reference architectures, domain-specific gotchas, industry standards. Uses Opus.
+2. **domain-researcher** — DDD analysis: bounded contexts, aggregates, entities, ubiquitous language, domain events. Uses Opus.
+3. **data-modeler** — Entity identification, relationship mapping, 5NF normalization analysis. Uses Opus.
+4. **codebase-scout** — Explores existing code for patterns, conventions, relevant modules, risks. Uses Opus.
+5. **service-layer-analyst** — API boundaries, orchestration, transaction scoping, cross-cutting concerns. Uses Opus.
 
 Give each agent the user's description of what they want to build. If there's existing context (prior conversation, existing code), include that too.
 
 Write each agent's output to `.sno/research/`:
+- `.sno/research/prior-art.md`
 - `.sno/research/domain.md`
 - `.sno/research/data-model.md`
 - `.sno/research/codebase.md`
+- `.sno/research/service-layer.md`
 
 ### Step 3: Synthesize and interview
-Once all three agents return:
+Once all five agents return:
 
-1. Read all three research outputs.
+1. Read all five research outputs.
 2. Collect ALL open questions from every agent.
 3. Spawn the **requirements-interviewer** agent to synthesize and prioritize the questions.
 4. Ask the user **one question at a time**. Wait for the answer before asking the next question. Each question must explain WHY it matters — what depends on the answer.
@@ -52,12 +56,14 @@ If the user says "just pick defaults" for any question, pick a reasonable defaul
 Once all questions are resolved (or defaulted), write `.sno/spec.md`.
 
 **Before writing, re-read every research output and every answer:**
+- `.sno/research/prior-art.md` — how similar problems are solved, domain-specific patterns, architectural patterns, domain gotchas
 - `.sno/research/domain.md` — bounded contexts, aggregates, factories, repositories, ports, events, open questions
 - `.sno/research/data-model.md` — entities, relationships, normalization, open questions
 - `.sno/research/codebase.md` — existing patterns, risks, open questions
+- `.sno/research/service-layer.md` — application services, API surface, transaction boundaries, cross-cutting concerns, open questions
 - `.sno/research/answers.md` — every user answer and every default chosen
 
-Every finding from the research must land somewhere in the spec. If the domain researcher identified 4 aggregates, all 4 appear in the spec. If the data modeler flagged a 5NF violation, it's in Data Constraints. If the codebase scout found a risk, it's in Context. If an answer resolved an open question, the decision appears in Decisions Log. Nothing gets silently dropped.
+Every finding from the research must land somewhere in the spec. If the prior art researcher identified domain-specific patterns or gotchas, they appear in the spec. If the domain researcher identified 4 aggregates, all 4 appear in the spec. If the data modeler flagged a 5NF violation, it's in Data Constraints. If the codebase scout found a risk, it's in Context. If the service layer analyst identified transaction boundaries or cross-cutting concerns, they're in the spec. If an answer resolved an open question, the decision appears in Decisions Log. Nothing gets silently dropped.
 
 The spec structure:
 
@@ -69,6 +75,9 @@ The spec structure:
 
 ## Context
 <What exists, what we're working with>
+
+## Prior Art & Domain Patterns
+<From prior art research — how similar problems are solved, domain-specific patterns adopted, domain gotchas to guard against>
 
 ## Domain Model
 
@@ -90,6 +99,16 @@ The spec structure:
 
 ### Domain Events
 <Key state transitions and triggers>
+
+## Service Layer
+### Application Services
+<From service layer research — use cases, what each service coordinates, transaction boundaries>
+
+### API Surface
+<How external requests map to service operations>
+
+### Cross-Cutting Concerns
+<Auth, logging, error translation, rate limiting — where enforced and how>
 
 ## Data Model
 ### Entities & Relationships
@@ -118,9 +137,11 @@ The spec structure:
 
 ### Step 5: Verify coverage
 Before showing the spec, cross-check:
+- Every domain-specific pattern and gotcha from `prior-art.md` is addressed in Prior Art & Domain Patterns or Requirements
 - Every aggregate, entity, and bounded context from `domain.md` appears in Domain Model
 - Every entity and relationship from `data-model.md` appears in Data Model
 - Every risk from `codebase.md` is addressed in Context or Requirements
+- Every application service, transaction boundary, and cross-cutting concern from `service-layer.md` appears in Service Layer
 - Every answer from `answers.md` is reflected in the spec (as a requirement, constraint, or decision)
 - Every open question from all research outputs is either answered (in Decisions Log) or still explicitly open
 

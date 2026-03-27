@@ -1,3 +1,18 @@
+```
+            *
+           /|\
+          / | \
+    *--  /  |  \  --*
+     \ ▐▛███▜▌ /
+      \▝▜█████▛▘/
+   ----  ▘▘ ▝▝  ----
+      /          \
+     /            \
+    *--  \  |  /  --*
+          \ | /
+           \|/
+            *
+```
 # sno
 
 Named for [Snow Tha Product](https://www.snowthaproduct.com/) who just handles business.

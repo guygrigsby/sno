@@ -13,21 +13,19 @@ You are in the **plan** phase of sno. Your goal is to turn the spec into an acti
 
 1. Read `.sno/spec.md`. If it doesn't exist, tell the user to run `/sno:learn` first.
 
-2. **Spawn parallel plan agents.** Launch these four agents **in parallel** using the Agent tool:
+2. **Spawn parallel plan agents.** Launch these three agents **in parallel** using the Agent tool:
 
    1. **planner** — Analyzes the spec, research outputs, and codebase. Produces a draft plan with dependency-tracked tasks and a list of open questions/ambiguities. Uses Opus.
-   2. **service-layer-analyst** — Analyzes service layer design: API boundaries, orchestration, transaction scoping, cross-cutting concerns. Uses Opus.
-   3. **ux-reviewer** — Reviews user experience: interaction flows, error UX, CLI ergonomics, UI patterns, developer experience. Adapts to the interface type (CLI, TUI, GUI, API, library). Uses Opus.
-   4. **antipattern-detector** — Identifies antipatterns, gotchas, and common mistakes specific to the tech stack and domain. Checks dependencies for known issues. Uses Opus.
+   2. **ux-reviewer** — Reviews user experience: interaction flows, error UX, CLI ergonomics, UI patterns, developer experience. Adapts to the interface type (CLI, TUI, GUI, API, library). Uses Opus.
+   3. **antipattern-detector** — Identifies antipatterns, gotchas, and common mistakes specific to the tech stack and domain. Checks dependencies for known issues. Uses Opus.
 
-   Give each agent the user's description and the paths to the spec and research outputs.
+   Give each agent the user's description and the paths to the spec and research outputs. The spec already contains service layer analysis from the learn phase — the planner should use it.
 
-3. **Present open questions one at a time.** Collect open questions from ALL four agents. Deduplicate and prioritize them. Before showing the plan, ask each question individually. Wait for the user's answer before asking the next one. These are implementation-level questions that affect task scoping, architecture, or approach that the spec doesn't answer.
+3. **Present open questions one at a time.** Collect open questions from ALL three agents. Deduplicate and prioritize them. Before showing the plan, ask each question individually. Wait for the user's answer before asking the next one. These are implementation-level questions that affect task scoping, architecture, or approach that the spec doesn't answer.
 
    If the user says "pick defaults" or similar, pick reasonable choices for all remaining questions and note them.
 
 4. **Incorporate agent findings into the draft plan.** Take the planner's draft plan and enrich it with:
-   - Service layer analyst's recommendations (transaction boundaries, API surface mapping, cross-cutting concerns)
    - UX reviewer's must-have recommendations (error UX, interaction flows, accessibility)
    - Antipattern detector's mitigations (add guardrails to relevant tasks, reorder if needed)
 
@@ -36,15 +34,15 @@ You are in the **plan** phase of sno. Your goal is to turn the spec into an acti
    - "**Wave 2** (parallel): tasks 3, 5"
    - "**Wave 3** (sequential): task 4"
 
-5. **Spawn the `critical-reviewer` agent** (Opus) on the assembled draft plan. Pass it the draft plan AND the outputs from all three analysis agents. It performs an adversarial review checking for:
+5. **Spawn the `critical-reviewer` agent** (Opus) on the assembled draft plan. Pass it the draft plan AND the outputs from the UX reviewer and antipattern detector. It performs an adversarial review checking for:
    - Spec coverage gaps
    - Dependency correctness
    - Task quality issues
    - Missed risks from the antipattern report
    - UX recommendations that didn't make it into tasks
-   - Service layer coherence
+   - Service layer coherence (cross-check against the spec's Service Layer section)
 
-   If the critical reviewer's verdict is NEEDS REVISION, incorporate its recommended changes before showing the plan to the user. If PASS WITH CONCERNS, note the concerns when presenting.
+   If the critical reviewer's verdict is NEEDS REVISION, incorporate its recommended changes and **re-run the critical reviewer once more** on the revised plan. This catches issues introduced by the revision itself. Cap at 2 critical review rounds — if it still says NEEDS REVISION after two passes, present both the plan and the remaining concerns to the user and let them decide. If PASS WITH CONCERNS, note the concerns when presenting.
 
 6. **Verify coverage.** Before showing the plan to the user, check the planner's coverage matrix. Every "Done when" criterion from the spec must map to at least one task. If anything is uncovered, add tasks or ask the user whether it's in scope. Flag any tasks that don't map to a spec requirement — they may be scope creep.
 

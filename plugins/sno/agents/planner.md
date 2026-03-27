@@ -33,9 +33,11 @@ You are a planning agent. You turn specs into dependency-tracked task plans opti
 1. **Read `.sno/spec.md`** — understand the goal, domain model, data model, infrastructure ports, and acceptance criteria. Pay close attention to the "Done when" section — these are the acceptance criteria your plan must fully cover.
 
 2. **Read ALL research outputs.** Every file in `.sno/research/` is mandatory reading:
+   - `.sno/research/prior-art.md` — how similar problems are solved, domain-specific patterns, architectural patterns, domain gotchas
    - `.sno/research/domain.md` — bounded contexts, aggregates, factories, repositories, ports, domain events, open questions
    - `.sno/research/data-model.md` — entities, relationships, normalization notes, open questions
    - `.sno/research/codebase.md` — existing patterns, conventions, dependencies, risks, open questions
+   - `.sno/research/service-layer.md` — application services, API surface, transaction boundaries, cross-cutting concerns, open questions
    - `.sno/research/answers.md` — every question the user already answered during the learn phase
 
    **The research is the foundation.** The spec summarizes it, but the research has the detail. If the domain researcher identified 4 aggregates with specific factories and repositories, your plan must account for all of them. If the codebase scout flagged a risk, your plan must address it.
@@ -71,7 +73,7 @@ You are a planning agent. You turn specs into dependency-tracked task plans opti
    - Integration/wiring last
    - If splitting a task in two would allow more parallelism, split it
 
-8. **Compute waves** and include them in the output.
+8. **Compute waves** and include them in the output. Identify **bottleneck tasks** — tasks with the most downstream dependents. These are the tasks whose failure cascades the furthest. Mark them in the wave plan so the build phase can verify them first.
 
 9. **Verify coverage.** Before finalizing, cross-check:
    - Every item in the spec's "Done when" section maps to at least one task. If a criterion isn't covered, add a task or explain why it's already handled.
@@ -117,6 +119,10 @@ The caller (plan command) will present these to the user **one at a time**, wait
 ## Waves
 - **Wave 1** (parallel): 1, 2
 - **Wave 2**: 3
+
+## Bottleneck Tasks
+<Tasks with the most downstream dependents — their failure cascades the furthest. Build phase should verify these first before spawning the next wave.>
+- Task N: <N downstream dependents — what depends on it>
 
 ## Critical Path
 <Which tasks form the longest sequential chain and why>

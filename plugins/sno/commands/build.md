@@ -28,7 +28,7 @@ You are in the **build** phase of sno. Your goal is to execute the plan as fast 
      - Clear instruction: only touch the files listed, implement exactly what the task says, nothing more.
    - Wait for all agents in the wave to complete.
    - **Mark all completed tasks** as `[x]` in `.sno/plan.md`.
-   - **Commit the wave.** Stage all files modified in this wave and commit with message: `sno: wave N — <brief summary of what the wave did>`. Do NOT include `.sno/` files.
+   - **Commit the wave.** Stage all files modified in this wave and commit with message: `sno: wave N [tasks 1,2,3] — <brief summary of what the wave did>`. Include the task numbers from the plan so git history links back to plan tasks. Do NOT include `.sno/` files.
    - Report what was done.
 
 4. **Move to next wave.** Repeat until all tasks are complete.
@@ -50,8 +50,12 @@ Tell each agent:
 - Only touch the files listed in your task.
 - Implement exactly what the task describes. Nothing more.
 - **Verify your work** using the task's `verify` field — run the specified check before reporting success.
+- **Self-review before reporting success.** After verifying, re-read all code you wrote or modified with fresh eyes. Look for: typos, wrong variable names, off-by-one errors, missing error handling, null/undefined paths, resource leaks, copy-paste artifacts. If you find something, fix it before reporting success.
 - Do not refactor, improve, or clean up adjacent code.
 - If something is blocked or wrong, return with a description of the problem instead of guessing.
+
+## Bottleneck tasks
+If the plan identifies bottleneck tasks (tasks with the most downstream dependents), verify those first after a wave completes. If a bottleneck task failed, fix it before spawning the next wave — its failure cascades to everything downstream.
 
 ## Rules
 - Never run dependent tasks in the same wave. Respect the dependency graph.

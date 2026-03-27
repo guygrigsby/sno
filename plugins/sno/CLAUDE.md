@@ -28,14 +28,17 @@ A lightweight Claude Code plugin for spec-driven development.
 - **Flag it, don't fix it.** Agents report scope surprises -- they don't silently add work. The user decides what's in scope.
 - **Parallelize by default.** Structure work so independent things run simultaneously. Interfaces first to unblock everything else.
 - **Domain names, not generic names.** No `model`, `types`, `utils`, `helpers`. Name things after what they are in the domain.
+- **Errors compound downstream.** A mistake caught in the spec costs 1x to fix. The same mistake caught in the plan costs 5x. Caught in code, 25x. This is why learn and plan are thorough.
 
 ## Learn Phase Agents
 
 The learn phase spawns parallel Opus agents:
+- `prior-art-researcher` -- how similar problems are solved, domain-specific patterns, architectural patterns, domain gotchas
 - `domain-researcher` -- DDD analysis (bounded contexts, aggregates, events)
 - `data-modeler` -- entity/relationship modeling, 5NF normalization
 - `codebase-scout` -- existing code patterns, conventions, risks
-- `requirements-interviewer` -- synthesizes open questions into focused interview
+- `service-layer-analyst` -- API boundaries, orchestration, transaction scoping, cross-cutting concerns
+- `requirements-interviewer` -- synthesizes open questions from all agents into focused interview
 
 ## Plan Phase Agents
 
@@ -43,7 +46,6 @@ The plan phase spawns parallel Opus agents, then a critical reviewer:
 
 **Wave 1 (parallel):**
 - `planner` -- task decomposition, dependency graph, wave planning, coverage matrix
-- `service-layer-analyst` -- API boundaries, orchestration, transaction scoping, cross-cutting concerns
 - `ux-reviewer` -- interaction flows, error UX, CLI/TUI/GUI ergonomics, accessibility
 - `antipattern-detector` -- tech stack gotchas, domain antipatterns, security pitfalls, dependency risks
 
