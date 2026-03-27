@@ -17,6 +17,8 @@ sno/
 │   ├── data-modeler.md              # 5NF data modeling (Opus)
 │   ├── codebase-scout.md            # Existing code analysis (Opus)
 │   └── requirements-interviewer.md  # Gap synthesis & interview (Opus)
+├── hooks/
+│   └── sno-statusline.js           # Blue/white statusline
 ├── .gitignore
 └── CLAUDE.md
 ```

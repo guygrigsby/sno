@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:agent-flywheel.com)",
+      "Bash(gh api:*)"
+    ]
+  }
+}
