@@ -35,6 +35,8 @@ You are in the **build** phase of sno. Your goal is to execute the plan as fast 
 
 5. When all tasks are done, update `.sno/state.json` phase to `check`. Then tell the user: "Run `/sno:check` to verify the work."
 
+**STOP.** Do not proceed to the check phase. Do not start verifying anything. Your job ends here — return control to the user. The next phase starts only when the user explicitly runs `/sno:check`.
+
 ## Parallel agent instructions
 
 When spawning a parallel build agent, give it this context:
@@ -61,7 +63,7 @@ Tell each agent:
 
 ## --auto flag
 
-If `--auto` is set:
+The STOP gate above does NOT apply when `--auto` is set. With `--auto`:
 - Execute all waves without pausing between them (same as "just do it all").
 - If an agent returns with a problem, attempt a reasonable fix once. If that fails, log the problem in `.sno/todos.md` and continue with remaining tasks.
 - When all tasks are done, immediately advance to the check phase. Continue through remaining phases without stopping.

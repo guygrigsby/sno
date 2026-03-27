@@ -129,6 +129,8 @@ If anything was dropped, either add it or document why it was excluded in the Re
 ### Step 6: Confirm
 Show the spec to the user. When they confirm, update `.sno/state.json` phase to `plan`. Then tell the user: "Run `/sno:plan` when you're ready to break this into tasks."
 
+**STOP.** Do not proceed to the plan phase. Do not start planning, building, or implementing anything. Your job ends here — return control to the user. The next phase starts only when the user explicitly runs `/sno:plan`.
+
 ## Rules
 
 - **Never assume.** If the user didn't say it and you can't derive it from code, it's an open question.
@@ -142,7 +144,7 @@ Show the spec to the user. When they confirm, update `.sno/state.json` phase to 
 
 ## --auto flag
 
-If `--auto` is set:
+The STOP gate above does NOT apply when `--auto` is set. With `--auto`:
 - In step 1, use whatever context is already available. Don't ask the user for more — just brief the agents with what you have.
 - In step 3, pick reasonable defaults for all open questions instead of interviewing the user. Document each as `(default-chosen)`.
 - In step 6, skip confirmation. Write the spec and immediately advance to the plan phase. Continue through remaining phases without stopping.

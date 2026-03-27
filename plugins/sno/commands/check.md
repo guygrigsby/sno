@@ -30,6 +30,8 @@ You are in the **check** phase of sno. Your goal is to verify the work.
 
 5. If everything passes, update `.sno/state.json` phase to `ship`. Then tell the user: "Run `/sno:ship` to commit and ship."
 
+**STOP.** Do not proceed to the ship phase. Do not start committing or shipping anything. Your job ends here — return control to the user. The next phase starts only when the user explicitly runs `/sno:ship`.
+
 6. If something fails, **auto-diagnose**:
    - For each failing criterion, spawn a debug agent (via Agent tool) to investigate the root cause. Give it:
      - The failing criterion
@@ -49,7 +51,7 @@ You are in the **check** phase of sno. Your goal is to verify the work.
 
 ## --auto flag
 
-If `--auto` is set:
+The STOP gate above does NOT apply when `--auto` is set. With `--auto`:
 - Run all checks and update the README without pausing.
 - If everything passes, immediately advance to the ship phase and continue.
 - If something fails, run auto-diagnosis. If the fix is small (< 20 lines total), apply it directly. If larger, log the failures and fix plans in `.sno/todos.md` and advance to ship anyway — don't block.

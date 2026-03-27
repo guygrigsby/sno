@@ -63,6 +63,8 @@ Each task must have all five fields: status, files, verify, done, and dependenci
 
 8. Update `.sno/state.json` phase to `build`. Then tell the user: "Run `/sno:build` to start executing the plan."
 
+**STOP.** Do not proceed to the build phase. Do not start implementing anything. Your job ends here — return control to the user. The next phase starts only when the user explicitly runs `/sno:build`.
+
 ## Dependency rules
 - Every task must declare `(depends: none)` or `(depends: <task numbers>)`.
 - A task depends on another only if it reads/modifies files the other creates, or if it uses types/interfaces the other defines.
@@ -78,7 +80,7 @@ Each task must have all five fields: status, files, verify, done, and dependenci
 
 ## --auto flag
 
-If `--auto` is set:
+The STOP gate above does NOT apply when `--auto` is set. With `--auto`:
 - Still present open questions (step 3) — these MUST be answered even in auto mode, since guessing leads to rework.
 - Skip the review loop (step 6). Write the plan and immediately advance to the build phase. Continue through remaining phases without stopping.
 - Coverage verification (step 5) still runs — never skip it.
