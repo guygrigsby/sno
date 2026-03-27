@@ -37,6 +37,19 @@ The learn phase spawns parallel Opus agents:
 - `codebase-scout` -- existing code patterns, conventions, risks
 - `requirements-interviewer` -- synthesizes open questions into focused interview
 
+## Plan Phase Agents
+
+The plan phase spawns parallel Opus agents, then a critical reviewer:
+
+**Wave 1 (parallel):**
+- `planner` -- task decomposition, dependency graph, wave planning, coverage matrix
+- `service-layer-analyst` -- API boundaries, orchestration, transaction scoping, cross-cutting concerns
+- `ux-reviewer` -- interaction flows, error UX, CLI/TUI/GUI ergonomics, accessibility
+- `antipattern-detector` -- tech stack gotchas, domain antipatterns, security pitfalls, dependency risks
+
+**Wave 2 (after wave 1 completes):**
+- `critical-reviewer` -- adversarial review of the assembled plan, checks coverage gaps, dependency correctness, missed risks, and scope drift
+
 ## Project State
 
 All workflow state lives in `.sno/` in the user's project directory:

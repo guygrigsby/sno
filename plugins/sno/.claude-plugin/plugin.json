@@ -1,6 +1,6 @@
 {
   "name": "sno",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "description": "Lightweight spec-driven development. Learn, plan, build, check, ship.",
   "author": {
     "name": "Guy Grigsby"
