@@ -44,7 +44,7 @@ You are in the **plan** phase of sno. Your goal is to turn the spec into an acti
 
    If the critical reviewer's verdict is NEEDS REVISION, incorporate its recommended changes and **re-run the critical reviewer once more** on the revised plan. This catches issues introduced by the revision itself. Cap at 2 critical review rounds — if it still says NEEDS REVISION after two passes, present both the plan and the remaining concerns to the user and let them decide. If PASS WITH CONCERNS, note the concerns when presenting.
 
-6. **Verify coverage.** Before showing the plan to the user, check the planner's coverage matrix. Every "Done when" criterion from the spec must map to at least one task. If anything is uncovered, add tasks or ask the user whether it's in scope. Flag any tasks that don't map to a spec requirement — they may be scope creep.
+6. **Verify coverage.** Before showing the plan to the user, check the planner's coverage matrix. Every "Done when" criterion from the spec must map to at least one task. If anything is uncovered, add tasks or ask the user whether it's in scope. Flag any tasks that don't map to a spec requirement — they may be scope creep. Also verify test coverage mapping: every task that creates or modifies code must either include inline test work or have a dependency on a test task that covers it. If any implementation task has no test coverage, flag it.
 
 7. **Review loop.** Ask the user to review. They can:
    - Request changes ("split task 3", "merge 2 and 4", "add X", "remove Y")
@@ -95,7 +95,8 @@ Each task must have all five fields: status, files, verify, done, and dependenci
 - Tasks should be small enough to do in one shot. If a task feels big, split it.
 - Each task should name the files it touches so the user knows the blast radius.
 - 3-10 tasks is the sweet spot. If you have more than 10, you're planning too granularly. If you have fewer than 3, the spec might be too small to need a plan (that's fine — just make 1-2 tasks).
-- Don't add tasks the user didn't ask for. No "add tests" or "update docs" unless the spec says so.
+- Every implementation task must include tests alongside the implementation. Tests are always required — they are part of "done," not bonus work. Only skip tests if the user explicitly opts out.
+- Don't add tasks the user didn't ask for. No "update docs" or unrelated cleanup unless the spec says so.
 - Maximize parallelism. If two tasks CAN be independent, make them independent. Structure the work to minimize sequential bottlenecks.
 
 ## --auto flag

@@ -49,7 +49,8 @@ When spawning a parallel build agent, give it this context:
 Tell each agent:
 - Only touch the files listed in your task.
 - Implement exactly what the task describes. Nothing more.
-- **Verify your work** using the task's `verify` field — run the specified check before reporting success.
+- **Write tests alongside your implementation.** Tests are part of "done" — a task without tests is not complete. Follow the test patterns and framework described in the spec's Test Strategy section (or match existing test patterns in the codebase). If your task modifies behavior, test that behavior.
+- **Verify your work** using the task's `verify` field — run the specified check before reporting success. Ensure all tests (both existing and new) pass.
 - **Self-review before reporting success.** After verifying, re-read all code you wrote or modified with fresh eyes. Look for: typos, wrong variable names, off-by-one errors, missing error handling, null/undefined paths, resource leaks, copy-paste artifacts. If you find something, fix it before reporting success.
 - Do not refactor, improve, or clean up adjacent code.
 - If something is blocked or wrong, return with a description of the problem instead of guessing.

@@ -28,6 +28,14 @@ You are in the **check** phase of sno. Your goal is to verify the work.
 
    **PR review agent** (`pr-reviewer`) — runs in parallel with the verification agents. Spawn it with `subagent_type: "sno:pr-reviewer"`. It reviews the full diff against the base branch for code quality, security, performance, consistency, and maintainability. It returns a structured review with critical issues, warnings, nits, and a verdict (APPROVE / REQUEST CHANGES / COMMENT).
 
+   **Codex review (conditional)** — if the codex plugin is available (the `/codex:review` skill exists in the current session), spawn it via `/codex:review` for an additional code review pass, run in parallel with the other agents. If the codex plugin is not installed, skip this silently — do not prompt the user or mention its absence.
+
+   **Test coverage agent** — also in parallel:
+   - Identifies all new or modified code paths in the diff
+   - Checks whether each code path has corresponding test coverage
+   - Verifies that new tests actually run and pass
+   - Returns: coverage assessment (complete/gaps found) and specific uncovered code paths if any
+
    **README check agent** — also in parallel:
    - Reads `README.md` and compares it against the spec and what was built
    - Checks if commands, features, or behaviors described in the README still match reality
@@ -39,6 +47,8 @@ You are in the **check** phase of sno. Your goal is to verify the work.
 3. **Collect results and update README.** Once all agents return:
    - Collect pass/fail results from verification agents.
    - Collect the PR review verdict and any critical issues or warnings.
+   - If a codex review was run, collect its findings alongside the PR review.
+   - Collect the test coverage assessment. Missing tests on new code paths are treated as critical issues — they block shipping, same as PR review critical issues.
    - If the README agent identified needed changes, apply them.
 
 4. **Adversarial re-check.** After the initial pass, assume at least one criterion you marked as passing has a subtle gap. Re-check each passing criterion with adversarial intent — look for the 80% implementation (where the happy path works but edge cases don't).
@@ -47,9 +57,10 @@ You are in the **check** phase of sno. Your goal is to verify the work.
    - List each criterion with pass/fail.
    - If something fails, explain what's wrong and suggest a fix.
    - Show the PR review summary: verdict, critical issues, and warnings. Include file:line references.
+   - If a codex review was run, include its findings in the report.
    - Nits from the PR review can be listed briefly or omitted if the review is otherwise clean.
 
-6. If everything passes **and** the PR review verdict is APPROVE or COMMENT (no critical issues), update `.sno/state.json` phase to `ship`. Then tell the user: "Run `/sno:ship` to commit and ship."
+6. If everything passes **and** the PR review verdict is APPROVE or COMMENT (no critical issues) **and** test coverage has no gaps on new code paths, update `.sno/state.json` phase to `ship`. Then tell the user: "Run `/sno:ship` to commit and ship."
 
    If acceptance criteria pass but the PR review returns REQUEST CHANGES, treat the critical issues as failures — do not advance to ship until they're resolved.
 

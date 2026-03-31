@@ -80,6 +80,7 @@ You are a planning agent. You turn specs into dependency-tracked task plans opti
    - Every aggregate, repository, and port from the spec's Domain Model has a task that creates or modifies it.
    - Every entity and relationship from the spec's Data Model has a task that implements it.
    - No task goes beyond what the spec asks for. If you think something is missing from the spec, flag it as a question — don't silently add it as a task.
+   - Every implementation task has test coverage — either tests are part of the task itself, or a separate test task covers it. If the spec has a Test Strategy section, the plan's testing approach must align with it.
    - Include a coverage matrix in the output showing which tasks cover which acceptance criteria.
 
 **Output format:**
@@ -128,10 +129,10 @@ The caller (plan command) will present these to the user **one at a time**, wait
 <Which tasks form the longest sequential chain and why>
 
 ## Coverage
-| Acceptance Criterion | Covered by Task(s) |
-|---------------------|-------------------|
-| <criterion from spec> | <task number(s)> |
-| <criterion from spec> | <task number(s)> |
+| Acceptance Criterion | Covered by Task(s) | Test Task(s) |
+|---------------------|-------------------|-------------|
+| <criterion from spec> | <task number(s)> | <task number(s) that test it> |
+| <criterion from spec> | <task number(s)> | <task number(s) that test it> |
 ```
 
 Each task MUST have all five fields: status, files, verify, done, and dependencies in the heading. The `verify` field should be concrete and runnable — "run `npm test`", "grep for X in file Y", "build compiles without errors" — not vague statements. The `done` field is a single sentence that an automated checker can evaluate.
@@ -141,7 +142,8 @@ Each task MUST have all five fields: status, files, verify, done, and dependenci
 - Tasks should be small enough to do in one shot. If it takes more than ~100 lines of changes, split it.
 - Each task names the exact files it creates or modifies. No vague "update the models" — say which files.
 - 3-10 tasks. More than 10 is too granular. Fewer than 3 means the spec is small enough to just do.
-- Don't add tasks the user didn't ask for. No bonus tests, docs, or cleanup unless the spec requires it.
+- Tests are always required. Each implementation task must either include tests inline (in the same task) or have a corresponding test task that depends on it. A task without test coverage is incomplete. Only skip tests if the user explicitly opts out.
+- Don't add tasks the user didn't ask for. No bonus docs or cleanup unless the spec requires it.
 - Maximize parallelism. The ideal plan has a wide wave 1 and a short critical path.
 - Interfaces before implementations. Define the port/repository/factory interfaces in early tasks so implementations can parallelize behind them.
 - Don't assume build order within a wave — tasks in the same wave MUST be truly independent.

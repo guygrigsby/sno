@@ -123,10 +123,18 @@ The spec structure:
 - <Concrete, testable requirement 2>
 - ...
 
+## Test Strategy
+- **Framework/tools:** <From codebase scout — what test framework, runner, assertion library is used>
+- **Patterns:** <From codebase scout — how existing tests are structured, where they live, naming conventions>
+- **Required coverage:** <What must be tested: unit tests for domain logic, integration tests for ports/adapters, e2e for critical paths>
+- **What to test:** <Specific behaviors derived from Requirements above — each requirement should map to at least one test>
+
 ## Done when
 - [ ] <Acceptance criterion 1>
 - [ ] <Acceptance criterion 2>
 - ...
+- [ ] All new code paths have tests
+- [ ] Tests pass
 
 ## Decisions Log
 - <Decision made>: <rationale> (user-confirmed | default-chosen)
@@ -141,6 +149,7 @@ Before showing the spec, cross-check:
 - Every aggregate, entity, and bounded context from `domain.md` appears in Domain Model
 - Every entity and relationship from `data-model.md` appears in Data Model
 - Every risk from `codebase.md` is addressed in Context or Requirements
+- The codebase scout's testing approach findings (framework, patterns, conventions) are reflected in the Test Strategy section
 - Every application service, transaction boundary, and cross-cutting concern from `service-layer.md` appears in Service Layer
 - Every answer from `answers.md` is reflected in the spec (as a requirement, constraint, or decision)
 - Every open question from all research outputs is either answered (in Decisions Log) or still explicitly open

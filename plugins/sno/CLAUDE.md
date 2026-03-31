@@ -28,6 +28,8 @@ A lightweight Claude Code plugin for spec-driven development.
 - **Flag it, don't fix it.** Agents report scope surprises -- they don't silently add work. The user decides what's in scope.
 - **Parallelize by default.** Structure work so independent things run simultaneously. Interfaces first to unblock everything else.
 - **Domain names, not generic names.** No `model`, `types`, `utils`, `helpers`. Name things after what they are in the domain.
+- **No triggers or stored procedures.** Avoid database triggers and stored procedures unless the user explicitly provides a compelling reason. They hide logic, complicate debugging, and create invisible coupling.
+- **Tests are not optional.** Every code change ships with tests. Changes without tests break shit. If you're not testing it, you're not done. Opting out of tests requires the user to explicitly say so.
 - **Errors compound downstream.** A mistake caught in the spec costs 1x to fix. The same mistake caught in the plan costs 5x. Caught in code, 25x. This is why learn and plan are thorough.
 
 ## Learn Phase Agents
@@ -57,6 +59,7 @@ The plan phase spawns parallel Opus agents, then a critical reviewer:
 The check phase spawns agents in parallel alongside the acceptance criteria verification:
 
 - `pr-reviewer` -- full PR-style code review of the diff against the base branch. Reviews correctness, security, performance, consistency, maintainability, and test coverage. Returns a structured review with verdict (APPROVE / REQUEST CHANGES / COMMENT). Critical issues block shipping.
+- `codex review` (conditional) -- if the codex plugin is installed, runs an additional code review pass via `/codex:rescue`. Skipped silently if not available.
 
 ## Project State
 

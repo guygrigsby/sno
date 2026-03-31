@@ -25,15 +25,18 @@ You are in **go** mode — the fast path for small, well-understood tasks that d
 
 5. **Do the work.** Make the changes directly. Follow existing patterns in the codebase. If there are multiple independent changes, parallelize them with agents.
 
-6. **Verify.** Run tests/build/lint if applicable. If something breaks, fix it.
+6. **Write tests.** Write tests for your changes following existing test patterns in the codebase. Changes without tests break shit.
 
-7. **Report.** Tell the user what you did, briefly. Mention any judgment calls you made.
+7. **Verify.** Run tests/build/lint. If something breaks, fix it. Confirm both existing and new tests pass.
 
-8. **Don't commit.** Leave that to the user. If they want to ship it through sno, they can run `/sno:ship`.
+8. **Report.** Tell the user what you did, briefly. Mention any judgment calls you made.
+
+9. **Don't commit.** Leave that to the user. If they want to ship it through sno, they can run `/sno:ship`.
 
 ## Rules
 - No `.sno/` state is created or modified. Go mode is stateless.
 - No spec, no plan file, no research directory. This is fire-and-forget.
 - Follow existing codebase patterns. Don't introduce new conventions for a quick task.
 - If you hit something surprising or ambiguous, ask rather than guess. Quick doesn't mean sloppy.
+- Quick doesn't mean untested. Write tests even in go mode. The only exception is if the user explicitly says to skip tests.
 - Keep it small. If scope creeps, suggest moving to the full loop.
