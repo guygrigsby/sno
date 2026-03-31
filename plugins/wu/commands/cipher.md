@@ -48,16 +48,16 @@ This command can be run at any time during the wu lifecycle. It does NOT advance
    - Each reviewer produces a verdict using the standard schema:
      ```json
      {
-       "passed": true|false,
-       "issues": [
+       "verdict": "pass|fail|conditional_pass|inconclusive",
+       "confidence": 0.0-1.0,
+       "findings": [
          {
-           "severity": "critical|major|minor|info",
+           "severity": "critical|high|medium|low|info",
            "description": "...",
            "location": "file:line or section reference",
-           "suggestion": "..."
+           "recommendation": "..."
          }
-       ],
-       "slop_score": 0.0-1.0
+       ]
      }
      ```
    - If ODB is in the panel, dispatch in parallel but hold output for separate processing.

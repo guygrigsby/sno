@@ -85,6 +85,73 @@ function buildCostEstimate(agents: AgentDefinition[]): CostEstimate {
 }
 
 // ---------------------------------------------------------------------------
+// Verdict parsing (exported for testing)
+// ---------------------------------------------------------------------------
+
+const VALID_VERDICTS = new Set(['pass', 'fail', 'conditional_pass', 'inconclusive']);
+const VALID_SEVERITIES = new Set(['critical', 'high', 'medium', 'low', 'info']);
+
+/**
+ * Parse and validate a Verdict from an agent's text response.
+ * This is a system boundary where untrusted LLM output enters typed code,
+ * so we validate thoroughly.
+ */
+export function parseVerdict(text: string): Verdict {
+  // Strip markdown fences if present
+  const cleaned = text
+    .replace(/^```(?:json)?\s*/m, '')
+    .replace(/\s*```\s*$/m, '')
+    .trim();
+
+  const parsed: unknown = JSON.parse(cleaned);
+
+  if (typeof parsed !== 'object' || parsed === null) {
+    throw new Error('Agent response is not a JSON object');
+  }
+
+  const obj = parsed as Record<string, unknown>;
+
+  // Validate verdict field
+  if (!VALID_VERDICTS.has(obj['verdict'] as string)) {
+    throw new Error(
+      `Invalid verdict value: "${String(obj['verdict'])}". ` +
+      `Expected one of: ${[...VALID_VERDICTS].join(', ')}`
+    );
+  }
+
+  // Validate confidence field
+  if (typeof obj['confidence'] !== 'number' || obj['confidence'] < 0 || obj['confidence'] > 1) {
+    throw new Error(
+      `Invalid confidence value: ${String(obj['confidence'])}. Expected a number between 0 and 1.`
+    );
+  }
+
+  // Validate findings field
+  if (!Array.isArray(obj['findings'])) {
+    throw new Error('Findings must be an array');
+  }
+
+  // Validate each finding
+  for (let i = 0; i < obj['findings'].length; i++) {
+    const finding = obj['findings'][i] as Record<string, unknown>;
+    if (typeof finding !== 'object' || finding === null) {
+      throw new Error(`Finding at index ${i} is not an object`);
+    }
+    if (!VALID_SEVERITIES.has(finding['severity'] as string)) {
+      throw new Error(
+        `Finding at index ${i} has invalid severity: "${String(finding['severity'])}". ` +
+        `Expected one of: ${[...VALID_SEVERITIES].join(', ')}`
+      );
+    }
+    if (typeof finding['description'] !== 'string') {
+      throw new Error(`Finding at index ${i} is missing a string "description" field`);
+    }
+  }
+
+  return parsed as Verdict;
+}
+
+// ---------------------------------------------------------------------------
 // Dispatcher
 // ---------------------------------------------------------------------------
 
@@ -291,27 +358,7 @@ export class AgentDispatcher {
    * Parse a Verdict from the agent's text response. Throws on malformed output.
    */
   private parseVerdict(text: string): Verdict {
-    // Strip markdown fences if present
-    const cleaned = text
-      .replace(/^```(?:json)?\s*/m, '')
-      .replace(/\s*```\s*$/m, '')
-      .trim();
-
-    const parsed: unknown = JSON.parse(cleaned);
-
-    if (
-      typeof parsed !== 'object' ||
-      parsed === null ||
-      !('verdict' in parsed) ||
-      !('confidence' in parsed) ||
-      !('findings' in parsed)
-    ) {
-      throw new Error('Agent response does not match Verdict schema');
-    }
-
-    // Trust the structure after basic shape check — full validation is the
-    // caller's responsibility (or a future Zod layer).
-    return parsed as Verdict;
+    return parseVerdict(text);
   }
 }
 

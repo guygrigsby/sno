@@ -46,25 +46,25 @@ You are in the **check** phase of wu.
    a. **risk-analysis**
       - Dispatch agents to assess technical, operational, and security risks.
       - Produce a risk matrix: likelihood x impact for each identified risk.
-      - Each risk gets a verdict: `{passed, issues, slop_score}`.
+      - Each risk gets a verdict: `{verdict, confidence, findings}`.
       - Write phase record to `.wu/phases/risk-analysis.json`.
 
    b. **license-check**
       - Scan all dependencies for license compatibility.
       - Flag any copyleft, unknown, or restrictive licenses.
-      - Produce verdict per the standard schema: `{passed, issues, slop_score}`.
+      - Produce verdict per the standard schema: `{verdict, confidence, findings}`.
       - Write phase record to `.wu/phases/license-check.json`.
 
    c. **copyright-check**
       - Verify copyright headers exist on new/modified files.
       - Check attribution for any vendored or copied code.
-      - Produce verdict: `{passed, issues, slop_score}`.
+      - Produce verdict: `{verdict, confidence, findings}`.
       - Write phase record to `.wu/phases/copyright-check.json`.
 
    d. **performance-tradeoff**
       - Analyze performance implications of the changes.
       - Flag any O(n^2) or worse algorithms, unnecessary allocations, missing caching.
-      - Produce verdict: `{passed, issues, slop_score}`.
+      - Produce verdict: `{verdict, confidence, findings}`.
       - Write phase record to `.wu/phases/performance-tradeoff.json`.
 
 6. **Soft budget warnings.**
