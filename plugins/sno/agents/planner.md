@@ -144,6 +144,7 @@ Each task MUST have all five fields: status, files, verify, done, and dependenci
 - 3-10 tasks. More than 10 is too granular. Fewer than 3 means the spec is small enough to just do.
 - Tests are always required. Each implementation task must either include tests inline (in the same task) or have a corresponding test task that depends on it. A task without test coverage is incomplete. Only skip tests if the user explicitly opts out.
 - Smallest diff that works. Each task should produce the minimum change needed — no bundled cleanup, no "improve adjacent code" subtasks. If something could be better but isn't required by the spec, leave it out.
+- Comments are part of done. Every task that creates public APIs, types, or new files implicitly includes writing docstrings and module-level comments. Don't create separate "add comments" tasks — comments ship with the code.
 - Don't add tasks the user didn't ask for. No bonus docs or cleanup unless the spec requires it.
 - Maximize parallelism. The ideal plan has a wide wave 1 and a short critical path.
 - Interfaces before implementations. Define the port/repository/factory interfaces in early tasks so implementations can parallelize behind them.

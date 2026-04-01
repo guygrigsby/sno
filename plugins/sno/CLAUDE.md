@@ -32,7 +32,9 @@ A lightweight Claude Code plugin for spec-driven development.
 - **Domain names, not generic names.** No `model`, `types`, `utils`, `helpers`. Name things after what they are in the domain.
 - **No triggers or stored procedures.** Avoid database triggers and stored procedures unless the user explicitly provides a compelling reason. They hide logic, complicate debugging, and create invisible coupling.
 - **Tests are not optional.** Every code change ships with tests. Changes without tests break shit. If you're not testing it, you're not done. Opting out of tests requires the user to explicitly say so.
+- **Comments are part of the code.** Every public function, type, and interface gets a docstring. Every module gets a top-level description. Non-obvious logic gets an inline comment explaining *why*, not *what*. If a future reader would need the spec to understand a block of code, it needs a comment. Self-documenting names are necessary but not sufficient.
 - **Errors compound downstream.** A mistake caught in the spec costs 1x to fix. The same mistake caught in the plan costs 5x. Caught in code, 25x. This is why learn and plan are thorough.
+- **Minimize function parameters.** Keep function signatures short — aim for 3-4 parameters max. When more are needed, group related parameters into a struct, options object, or config type. Ten-parameter functions are a code smell that signals missing abstraction.
 
 ## Learn Phase Agents
 

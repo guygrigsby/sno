@@ -52,6 +52,7 @@ Tell each agent:
 - **Write tests alongside your implementation.** Tests are part of "done" — a task without tests is not complete. Follow the test patterns and framework described in the spec's Test Strategy section (or match existing test patterns in the codebase). If your task modifies behavior, test that behavior.
 - **Verify your work** using the task's `verify` field — run the specified check before reporting success. Ensure all tests (both existing and new) pass.
 - **Self-review before reporting success.** After verifying, re-read all code you wrote or modified with fresh eyes. Look for: typos, wrong variable names, off-by-one errors, missing error handling, null/undefined paths, resource leaks, copy-paste artifacts. If you find something, fix it before reporting success.
+- **Write comments.** Every public function, type, and interface must have a docstring. Every new file must have a module-level comment describing its purpose. Add inline comments on non-obvious logic — explain *why*, not *what*. Match the comment style already used in the codebase (JSDoc, GoDoc, Python docstrings, etc.).
 - Do not refactor, improve, or clean up adjacent code.
 - If something is blocked or wrong, return with a description of the problem instead of guessing.
 
