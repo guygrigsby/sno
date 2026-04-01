@@ -4,7 +4,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { CipherService } from '../lib/cipher.js';
-import type { Review, Verdict } from '../lib/types.js';
+import type { Review, Verdict, CryptoVerdict, CryptoFinding } from '../lib/types.js';
 
 function makeVerdict(overrides: Partial<Verdict> = {}): Verdict {
   return {
@@ -209,6 +209,29 @@ describe('CipherService.needsEscalation', () => {
   });
 });
 
+function makeCryptoVerdict(overrides: Partial<CryptoVerdict> = {}): CryptoVerdict {
+  return {
+    verdict: 'pass',
+    confidence: 0.9,
+    findings: [],
+    cryptoFindings: [],
+    hasCryptoUsage: false,
+    ...overrides,
+  };
+}
+
+function makeCryptoFinding(overrides: Partial<CryptoFinding> = {}): CryptoFinding {
+  return {
+    severity: 'medium',
+    description: 'test crypto finding',
+    location: 'src/crypto.ts:10',
+    recommendation: 'fix it',
+    category: 'weak-algorithm',
+    pass: 'code-scan',
+    ...overrides,
+  };
+}
+
 describe('CipherService.runCipherRound', () => {
   const cipher = new CipherService(0.3);
 
@@ -224,5 +247,90 @@ describe('CipherService.runCipherRound', () => {
     expect(round.concordance).toBe(1.0);
     expect(round.slopScore.passed).toBe(true);
     expect(round.conflicts).toEqual([]);
+    expect(round.cryptoVerdict).toBeUndefined();
+  });
+
+  it('includes crypto verdict when provided', () => {
+    const reviews = [makeReview('inspectah-deck', { verdict: 'pass' })];
+    const crypto = makeCryptoVerdict({ hasCryptoUsage: true });
+    const round = cipher.runCipherRound('cipher', 1, reviews, crypto);
+    expect(round.cryptoVerdict).toBeDefined();
+    expect(round.cryptoVerdict!.hasCryptoUsage).toBe(true);
+  });
+});
+
+describe('CipherService.hasCriticalCryptoFindings', () => {
+  const cipher = new CipherService(0.3);
+
+  it('returns false when no crypto findings', () => {
+    const crypto = makeCryptoVerdict();
+    expect(cipher.hasCriticalCryptoFindings(crypto)).toBe(false);
+  });
+
+  it('returns false for non-critical findings', () => {
+    const crypto = makeCryptoVerdict({
+      cryptoFindings: [
+        makeCryptoFinding({ severity: 'medium', category: 'weak-algorithm' }),
+        makeCryptoFinding({ severity: 'low', category: 'key-management' }),
+      ],
+    });
+    expect(cipher.hasCriticalCryptoFindings(crypto)).toBe(false);
+  });
+
+  it('returns true when any finding is critical', () => {
+    const crypto = makeCryptoVerdict({
+      cryptoFindings: [
+        makeCryptoFinding({ severity: 'low', category: 'weak-algorithm' }),
+        makeCryptoFinding({ severity: 'critical', category: 'hardcoded-secret' }),
+      ],
+    });
+    expect(cipher.hasCriticalCryptoFindings(crypto)).toBe(true);
+  });
+});
+
+describe('CipherService.cipherRoundPassed', () => {
+  const cipher = new CipherService(0.3);
+
+  it('passes when slop passes and no crypto verdict', () => {
+    const reviews = [
+      makeReview('gza', { verdict: 'pass', confidence: 0.9 }),
+      makeReview('inspectah-deck', { verdict: 'pass', confidence: 0.9 }),
+    ];
+    const round = cipher.runCipherRound('cipher', 1, reviews);
+    expect(cipher.cipherRoundPassed(round)).toBe(true);
+  });
+
+  it('passes when slop passes and crypto has no critical findings', () => {
+    const reviews = [
+      makeReview('inspectah-deck', { verdict: 'pass', confidence: 0.9 }),
+    ];
+    const crypto = makeCryptoVerdict({
+      hasCryptoUsage: true,
+      cryptoFindings: [makeCryptoFinding({ severity: 'medium' })],
+    });
+    const round = cipher.runCipherRound('cipher', 1, reviews, crypto);
+    expect(cipher.cipherRoundPassed(round)).toBe(true);
+  });
+
+  it('fails when crypto has critical findings', () => {
+    const reviews = [
+      makeReview('inspectah-deck', { verdict: 'pass', confidence: 0.9 }),
+    ];
+    const crypto = makeCryptoVerdict({
+      hasCryptoUsage: true,
+      cryptoFindings: [makeCryptoFinding({ severity: 'critical', category: 'hardcoded-secret' })],
+    });
+    const round = cipher.runCipherRound('cipher', 1, reviews, crypto);
+    expect(cipher.cipherRoundPassed(round)).toBe(false);
+  });
+
+  it('fails when slop fails even if crypto passes', () => {
+    const reviews = [
+      makeReview('gza', { verdict: 'pass', confidence: 0.95 }),
+      makeReview('inspectah-deck', { verdict: 'fail', confidence: 0.95 }),
+    ];
+    const crypto = makeCryptoVerdict({ hasCryptoUsage: false });
+    const round = cipher.runCipherRound('cipher', 1, reviews, crypto);
+    expect(cipher.cipherRoundPassed(round)).toBe(false);
   });
 });
