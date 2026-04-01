@@ -43,16 +43,37 @@ This command can be run at any time during the wu lifecycle. It does NOT advance
    - Ask: "Slop threshold is set to <default>. Change it? (Enter a number 0.0-1.0, or press enter to keep default)"
    - Wait for the user's answer.
 
-5. **Run cryptographic analysis.**
-   - Dispatch **GZA** (at opus tier) to perform a dual-pass cryptographic analysis of the artifact:
+5. **Run cryptographic analysis via the Agent SDK CLI.**
+
+   ```bash
+   npx wu-dispatch \
+     --phase cipher \
+     --agents gza \
+     --model opus \
+     --prompt "<artifact content for crypto analysis>" \
+     --wu-dir .wu
+   ```
+
+   **If the CLI fails**, fall back to local Agent tool dispatch using `wu:gza`. Log: `"Cloud dispatch failed, using local fallback."`
+
+   GZA performs a dual-pass cryptographic analysis of the artifact:
      - **Code scan**: weak/deprecated algorithms, hardcoded secrets, insufficient key lengths, bad TLS config, insecure RNG, timing-vulnerable comparisons.
      - **Design review**: custom crypto vs established libraries, key management architecture, encryption at rest/in transit coverage, protocol-level flaws (replay, missing nonces, no forward secrecy), threat model alignment.
    - GZA produces a verdict with crypto-specific findings using the standard schema.
    - If GZA finds **critical** crypto findings, flag them immediately before continuing to the reviewer dispatch — the user may want to abort early.
    - If the artifact contains no cryptographic code or usage, GZA reports `verdict: "pass"` with an info-level finding: "No cryptographic usage detected in artifact."
 
-6. **Dispatch the selected reviewers with the artifact.**
-   - Send the artifact content to each reviewer agent in parallel.
+6. **Dispatch the selected reviewers via the Agent SDK CLI.**
+
+   ```bash
+   npx wu-dispatch \
+     --phase cipher \
+     --agents <selected-reviewer-aliases> \
+     --prompt "<artifact content for review>" \
+     --wu-dir .wu
+   ```
+
+   **If the CLI fails**, fall back to local Agent tool dispatch. Each reviewer runs in parallel.
    - Each reviewer produces a verdict using the standard schema:
      ```json
      {

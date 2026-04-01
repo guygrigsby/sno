@@ -25,7 +25,7 @@ You are running the **gate** command for wu.
 
    Wait for the user's answer. Do not guess or pick a default.
 
-3. **Dispatch appropriate agents** based on the selected gate:
+3. **Dispatch appropriate agents via the Agent SDK CLI** based on the selected gate:
 
    | Gate | Agents | Focus |
    |------|--------|-------|
@@ -36,7 +36,15 @@ You are running the **gate** command for wu.
    | `risk` | GZA, Raekwon | Assess architectural and implementation risks. |
    | `performance` | GZA, U-God | Evaluate performance implications and tradeoffs. |
 
-   Use the Agent tool. Provide persona prompts from `plugins/wu/agents/` if available.
+   ```bash
+   npx wu-dispatch \
+     --phase gate \
+     --agents <agents-for-selected-gate> \
+     --prompt "<gate evaluation prompt with context>" \
+     --wu-dir .wu
+   ```
+
+   **If the CLI fails**, fall back to the local Agent tool — dispatch each agent as a subagent with its wu alias. Log: `"Cloud dispatch failed, using local fallback."`
 
 4. **Evaluate gate criteria.** Each gate has pass/fail criteria:
    - `slop-check`: Pass if slop score <= 15. Fail if > 15.

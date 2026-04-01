@@ -23,19 +23,40 @@ You are in the **learn** phase of wu.
    - Present a summary table: agent name, model tier, estimated cost tier (low/medium/high).
    - Ask the user for explicit confirmation before proceeding. Do not proceed without it.
 
-5. **Dispatch primary agents** in parallel using the Agent tool. Each agent gets its persona prompt from `plugins/wu/agents/`, plus any cross-cycle memory loaded in step 3:
-   - **GZA** (Technical Architect) — Analyze the domain. Identify bounded contexts, key entities, architectural constraints, and system boundaries. Produce a domain model.
-   - **Ghostface** (Domain Researcher) — Research the problem space. Write requirements, clarify user intent, identify edge cases, and produce a draft spec.
-   - **Raekwon** (Implementation Strategist) — Survey practical implementation patterns. Identify libraries, frameworks, prior art, and pragmatic tradeoffs.
-   - **Masta Killa** (Compliance) — Run an initial compliance scan. Check for licensing, security, accessibility, and regulatory concerns.
+5. **Dispatch primary agents via the Agent SDK CLI.** Build the prompt from the user's task description plus any cross-cycle memory from step 3. Then run:
 
-6. **Show progress** as each agent completes. Print a status line:
+   ```bash
+   npx wu-dispatch \
+     --phase learn \
+     --agents gza,ghostface,raekwon,masta-killa \
+     --prompt "<the prompt you built>" \
+     --wu-dir .wu
+   ```
+
+   This fans out 4 agents in parallel on Anthropic's infrastructure via the Agent SDK. The CLI outputs JSON results to stdout and progress to stderr.
+
+   **If the CLI fails** (missing API key, network error, SDK unavailable), fall back to the local Agent tool — dispatch each agent as a subagent with `subagent_type` matching its alias (e.g., `wu:gza`, `wu:ghostface`). Log a warning: `"Cloud dispatch failed, using local fallback."` Each agent gets its persona from `plugins/wu/agents/`, plus:
+   - **GZA** (Technical Architect) — Analyze the domain. Identify bounded contexts, key entities, architectural constraints, and system boundaries.
+   - **Ghostface** (Domain Researcher) — Research the problem space. Write requirements, clarify user intent, identify edge cases.
+   - **Raekwon** (Implementation Strategist) — Survey practical implementation patterns, libraries, frameworks, prior art.
+   - **Masta Killa** (Compliance) — Run an initial compliance scan for licensing, security, accessibility.
+
+6. **Show progress** as each agent completes. The CLI prints progress to stderr automatically. If using local fallback, print:
    - `"GZA (Technical Architect) completed [1/4]"`
    - `"Ghostface (Domain Researcher) completed [2/4]"`
    - Continue until all 4 are done.
 
-7. **Run cipher rounds** (use the count from config, default 3). For each round:
-   - Dispatch **Inspectah Deck** (Quality Verifier) and **Masta Killa** (Compliance Verifier) to cross-check the primary agents' output.
+7. **Run cipher rounds** (use the count from config, default 3). For each round, dispatch via the CLI:
+
+   ```bash
+   npx wu-dispatch \
+     --phase learn \
+     --agents inspectah-deck,masta-killa \
+     --prompt "<primary agent outputs for cross-check>" \
+     --wu-dir .wu
+   ```
+
+   If CLI fails, fall back to local Agent tool dispatch. Inspectah Deck and Masta Killa cross-check the primary agents' output.
    - They should detect conflicts, assess confidence, and compute:
      - **Concordance score**: how much the agents agree (0-100).
      - **Slop score**: how much output looks like filler or hallucination (0-100, lower is better).

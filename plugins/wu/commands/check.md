@@ -22,12 +22,19 @@ You are in the **check** phase of wu.
    - Wait for confirmation before proceeding.
 
 4. **Run cipher rounds** (default: 2 rounds per `config.cipher_rounds.check`).
-   For each round:
-   - Dispatch **GZA** (at opus tier) for cryptographic analysis — code scan + design review. If GZA finds critical crypto findings, flag them immediately before continuing.
-   - Dispatch **Inspectah Deck** (quality auditor): reviews code quality, test coverage, spec adherence.
-   - Dispatch **Masta Killa** (compliance reviewer): reviews for correctness, edge cases, error handling.
-   - Dispatch at least **one additional reviewer** from the wu roster (e.g., Raekwon for real-world usage patterns).
-   - Dispatch **ODB (chaos agent)** in parallel with the structured reviewers.
+   For each round, dispatch via the Agent SDK CLI:
+
+   ```bash
+   npx wu-dispatch \
+     --phase check \
+     --agents gza,inspectah-deck,masta-killa,raekwon,odb \
+     --prompt "<build output and diff for review>" \
+     --wu-dir .wu
+   ```
+
+   GZA runs at opus tier for crypto analysis (code scan + design review). If GZA finds critical crypto findings, flag them immediately before continuing.
+
+   **If the CLI fails**, fall back to local Agent tool dispatch using each agent's wu alias. Log: `"Cloud dispatch failed, using local fallback."`
 
    **ODB constraints (mandatory):**
    - ODB is NEVER the sole reviewer. There must always be at least 2 structured reviewers alongside ODB.

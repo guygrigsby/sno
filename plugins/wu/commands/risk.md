@@ -24,7 +24,19 @@ You are running the **risk** command for wu.
 
    Wait for the user's answer before proceeding.
 
-3. **Dispatch GZA + Raekwon** in parallel using the Agent tool. Provide persona prompts from `plugins/wu/agents/` (if available) or use role descriptions:
+3. **Dispatch GZA + Raekwon via the Agent SDK CLI:**
+
+   ```bash
+   npx wu-dispatch \
+     --phase risk-analysis \
+     --agents gza,raekwon \
+     --prompt "<risk assessment scope and context>" \
+     --wu-dir .wu
+   ```
+
+   **If the CLI fails**, fall back to the local Agent tool — dispatch each agent as a subagent with its wu alias. Log: `"Cloud dispatch failed, using local fallback."`
+
+   Agent focus areas:
    - **GZA** (Technical Architect) — Analyze architectural risks: complexity, coupling, scalability bottlenecks, single points of failure, data integrity concerns.
    - **Raekwon** (Implementation Strategist) — Analyze practical risks: breaking changes, migration difficulty, dependency fragility, operational impact, rollback difficulty.
 

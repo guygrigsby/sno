@@ -14,7 +14,19 @@ You are running the **audit** command for wu.
      - Create `.wu/audit.jsonl` (empty)
      - Do **not** create a full cycle state. This is a standalone operation.
 
-2. **Dispatch Masta Killa** (Compliance Specialist) using the Agent tool. Provide the persona prompt from `plugins/wu/agents/` (if available) or use the role description: Compliance Specialist focused on licensing, security, accessibility, and regulatory concerns.
+2. **Dispatch Masta Killa via the Agent SDK CLI:**
+
+   ```bash
+   npx wu-dispatch \
+     --phase license-check \
+     --agents masta-killa \
+     --prompt "<compliance audit scope and project context>" \
+     --wu-dir .wu
+   ```
+
+   **If the CLI fails**, fall back to the local Agent tool — dispatch as `wu:masta-killa`. Log: `"Cloud dispatch failed, using local fallback."`
+
+   Masta Killa (Compliance Specialist) runs the audit.
 
    Masta Killa should:
    - **Scan dependencies for license compatibility.**

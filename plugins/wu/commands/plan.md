@@ -16,16 +16,37 @@ You are in the **plan** phase of wu.
    - Show estimated cost by agent and model tier.
    - Ask the user for explicit confirmation. Do not proceed without it.
 
-4. **Dispatch planning agents** in parallel using the Agent tool. Each agent receives the learn summary as context and its persona prompt from `plugins/wu/agents/`:
+4. **Dispatch planning agents via the Agent SDK CLI.** Build the prompt from the learn summary. Then run:
+
+   ```bash
+   npx wu-dispatch \
+     --phase plan \
+     --agents gza,raekwon \
+     --prompt "<learn summary + task decomposition instructions>" \
+     --wu-dir .wu
+   ```
+
+   Each agent receives the learn summary as context:
    - **GZA** (Technical Architect) — Decompose the domain model and spec into concrete technical tasks. Make architecture decisions (file structure, module boundaries, API shape). Assign dependencies between tasks.
    - **Raekwon** (Implementation Strategist) — Scope each task practically. Estimate complexity, identify risky tasks, suggest implementation order. Flag tasks that need spikes or prototyping.
 
-5. **Show progress** as each agent completes:
+   **If the CLI fails**, fall back to the local Agent tool — dispatch each agent as a subagent with its wu alias. Log: `"Cloud dispatch failed, using local fallback."`
+
+5. **Show progress** as each agent completes. The CLI prints progress to stderr automatically. If using local fallback, print:
    - `"GZA (Technical Architect) completed [1/2]"`
    - `"Raekwon (Implementation Strategist) completed [2/2]"`
 
-6. **Run cipher rounds** (use count from config, default 3). For each round:
-   - Dispatch **Inspectah Deck** (Quality Verifier) and **Masta Killa** (Compliance Verifier) to verify the task graph.
+6. **Run cipher rounds** (use count from config, default 3). For each round, dispatch via the CLI:
+
+   ```bash
+   npx wu-dispatch \
+     --phase plan \
+     --agents inspectah-deck,masta-killa \
+     --prompt "<task graph for verification>" \
+     --wu-dir .wu
+   ```
+
+   If CLI fails, fall back to local Agent tool dispatch. Inspectah Deck and Masta Killa verify the task graph.
    - They check for: missing dependencies, circular deps, scope gaps, tasks that are too large, file ownership conflicts.
    - Compute concordance and slop scores.
    - Show progress: `"Cipher round 1/3 complete — concordance: 91, slop: 8"`.

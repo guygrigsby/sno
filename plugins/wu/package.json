@@ -1,6 +1,6 @@
 {
   "name": "@guygrigsby/wu",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Zero-slop development with persona-driven analysis and cloud-first agent dispatch.",
   "author": {
     "name": "Guy Grigsby"
@@ -9,6 +9,9 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": {
+    "wu-dispatch": "dist/cli.js"
+  },
   "scripts": {
     "build": "tsc",
     "test": "vitest run"

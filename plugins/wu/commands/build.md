@@ -22,13 +22,22 @@ You are in the **build** phase of wu.
       - Show how many agents will run, which model tier, and estimated cost.
       - Ask the user for confirmation before dispatching. Do not proceed without it.
 
-   b. **Dispatch agents** for each task in the wave:
-      - Use cloud dispatch via AgentDispatcher (Agent SDK) as the primary method.
-      - If cloud dispatch fails or is unavailable, fall back gracefully to the local Agent tool.
-      - Each agent receives: the task description, file list, verification criteria, and the plan/learn summaries as context.
-      - Assign agent personas from `plugins/wu/agents/` based on task type (GZA for architecture tasks, Raekwon for implementation, Ghostface for spec-heavy work, etc.).
+   b. **Dispatch agents via the Agent SDK CLI.** Build the prompt from the task description, file list, verification criteria, and plan/learn summaries. Then run:
 
-   c. **Batch concurrency**: run a maximum of 4-5 agents in parallel per wave (configurable in `.wu/config.json`).
+      ```bash
+      npx wu-dispatch \
+        --phase build \
+        --agents <agent-aliases-for-this-wave> \
+        --prompt "<task prompt with context>" \
+        --wu-dir .wu \
+        --batch-size <from config, default 4>
+      ```
+
+      Assign agent personas based on task type: GZA for architecture tasks, Raekwon for implementation, Ghostface for spec-heavy work, etc.
+
+      **If the CLI fails**, fall back to the local Agent tool — dispatch each agent as a subagent with its wu alias. Log: `"Cloud dispatch failed, using local fallback."`
+
+   c. **Batch concurrency**: the CLI respects `--batch-size` (default 4, configurable in `.wu/config.json`).
 
    d. **Enforce exclusive file ownership**: before dispatch, verify no two tasks in this wave will write to the same file. If a conflict is detected, split the wave or serialize the conflicting tasks.
 
