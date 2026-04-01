@@ -8,9 +8,14 @@ Each plugin lives in its own directory under `plugins/`:
 
 ```
 plugins/
-└── sno/           # spec-driven development
+├── sno/           # spec-driven development
+│   ├── .claude-plugin/plugin.json
+│   ├── commands/
+│   ├── agents/
+│   └── CLAUDE.md
+└── wu/            # zero-slop development
     ├── .claude-plugin/plugin.json
-    ├── commands/
+    ├── schemas/
     ├── agents/
     └── CLAUDE.md
 ```
@@ -25,3 +30,4 @@ plugins/
 ## Plugins
 
 - **[sno](plugins/sno/CLAUDE.md)** -- spec-driven development loop (learn, plan, build, check, ship)
+- **[wu](plugins/wu/CLAUDE.md)** -- zero-slop development with persona-driven analysis and cloud-first dispatch

@@ -59,6 +59,34 @@ export interface SlopScore {
 }
 
 // ---------------------------------------------------------------------------
+// Cryptographic analysis
+// ---------------------------------------------------------------------------
+
+export type CryptoFindingCategory =
+  | 'weak-algorithm'
+  | 'hardcoded-secret'
+  | 'insufficient-key-length'
+  | 'bad-tls-config'
+  | 'insecure-rng'
+  | 'timing-vulnerable'
+  | 'missing-cert-validation'
+  | 'custom-crypto'
+  | 'key-management'
+  | 'missing-encryption'
+  | 'protocol-flaw'
+  | 'threat-model-mismatch';
+
+export interface CryptoFinding extends Finding {
+  category: CryptoFindingCategory;
+  pass: 'code-scan' | 'design-review';
+}
+
+export interface CryptoVerdict extends Verdict {
+  cryptoFindings: CryptoFinding[];
+  hasCryptoUsage: boolean;
+}
+
+// ---------------------------------------------------------------------------
 // Cipher
 // ---------------------------------------------------------------------------
 
@@ -69,6 +97,7 @@ export interface CipherRound {
   conflicts: Conflict[];
   concordance: number;
   slopScore: SlopScore;
+  cryptoVerdict?: CryptoVerdict;
 }
 
 export interface Review {

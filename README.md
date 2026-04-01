@@ -19,6 +19,7 @@ Then install individual plugins:
 | Plugin | Description |
 |--------|-------------|
 | [sno](plugins/sno/) | Spec-driven development. Learn, plan, build, check, ship. |
+| [wu](plugins/wu/) | Zero-slop development with persona-driven analysis and cloud-first agent dispatch. |
 
 ## Adding a Plugin
 

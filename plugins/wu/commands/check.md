@@ -23,9 +23,10 @@ You are in the **check** phase of wu.
 
 4. **Run cipher rounds** (default: 2 rounds per `config.cipher_rounds.check`).
    For each round:
+   - Dispatch **GZA** (at opus tier) for cryptographic analysis — code scan + design review. If GZA finds critical crypto findings, flag them immediately before continuing.
    - Dispatch **Inspectah Deck** (quality auditor): reviews code quality, test coverage, spec adherence.
    - Dispatch **Masta Killa** (compliance reviewer): reviews for correctness, edge cases, error handling.
-   - Dispatch at least **one additional reviewer** from the wu roster (e.g., GZA for architecture, Raekwon for real-world usage patterns).
+   - Dispatch at least **one additional reviewer** from the wu roster (e.g., Raekwon for real-world usage patterns).
    - Dispatch **ODB (chaos agent)** in parallel with the structured reviewers.
 
    **ODB constraints (mandatory):**

@@ -5,6 +5,7 @@ import type {
   Conflict,
   ConflictParty,
   CipherRound,
+  CryptoVerdict,
   SlopScore,
 } from './types.js';
 
@@ -15,7 +16,12 @@ export class CipherService {
     this.slopThreshold = slopThreshold;
   }
 
-  runCipherRound(phase: PhaseName, round: number, reviews: Review[]): CipherRound {
+  runCipherRound(
+    phase: PhaseName,
+    round: number,
+    reviews: Review[],
+    cryptoVerdict?: CryptoVerdict,
+  ): CipherRound {
     const { structured, chaos } = this.separateOdbOutput(reviews);
     const concordance = this.computeConcordance(structured);
     const slopScore = this.computeSlopScore(structured);
@@ -28,7 +34,19 @@ export class CipherService {
       conflicts,
       concordance,
       slopScore,
+      cryptoVerdict,
     };
+  }
+
+  hasCriticalCryptoFindings(cryptoVerdict: CryptoVerdict): boolean {
+    return cryptoVerdict.cryptoFindings.some(f => f.severity === 'critical');
+  }
+
+  cipherRoundPassed(round: CipherRound): boolean {
+    const slopPassed = round.slopScore.passed;
+    const cryptoPassed = !round.cryptoVerdict ||
+      !this.hasCriticalCryptoFindings(round.cryptoVerdict);
+    return slopPassed && cryptoPassed;
   }
 
   detectConflicts(reviews: Review[]): Conflict[] {
