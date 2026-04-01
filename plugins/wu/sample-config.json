@@ -1,0 +1,21 @@
+{
+  "skip_phases": [],
+  "model_overrides": {
+    "risk-analysis": "opus",
+    "license-check": "haiku",
+    "copyright-check": "haiku"
+  },
+  "budget": {
+    "warning_threshold_tokens": 500000,
+    "total_tokens_used": 0
+  },
+  "concurrency": {
+    "max_parallel_agents": 4
+  },
+  "slop_threshold": 0.3,
+  "cipher_rounds": {
+    "learn": 2,
+    "plan": 1,
+    "build": 1
+  }
+}
