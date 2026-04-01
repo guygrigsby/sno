@@ -11,6 +11,11 @@ You are in the **plan** phase of sno. Your goal is to turn the spec into an acti
 
 ## What to do
 
+### Step 0: Check and set state
+If `.sno/state.json` doesn't exist, tell the user: "Run `/sno:new` first." and stop.
+
+Update `.sno/state.json` phase to `plan`.
+
 1. Read `.sno/spec.md`. If it doesn't exist, tell the user to run `/sno:learn` first.
 
 2. **Spawn parallel plan agents.** Launch these three agents **in parallel** using the Agent tool:
