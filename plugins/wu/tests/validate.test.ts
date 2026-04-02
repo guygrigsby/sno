@@ -19,7 +19,7 @@ const EXPECTED_AGENTS = [
 ] as const;
 
 const EXPECTED_COMMANDS = [
-  'wu', 'new', 'go', 'abort', 'learn', 'plan', 'build',
+  'wu', 'new', 'abort', 'learn', 'plan', 'build',
   'check', 'ship', 'cipher', 'status', 'replay', 'override',
   'crew', 'audit', 'risk', 'gate',
 ] as const;
@@ -219,9 +219,9 @@ describe('agent files', () => {
 // ---------------------------------------------------------------------------
 
 describe('command files', () => {
-  it('has exactly 17 command files', () => {
+  it('has exactly 16 command files', () => {
     const cmdFiles = fs.readdirSync(COMMANDS_DIR).filter((f) => f.endsWith('.md'));
-    expect(cmdFiles.length).toBe(17);
+    expect(cmdFiles.length).toBe(16);
   });
 
   for (const cmd of EXPECTED_COMMANDS) {

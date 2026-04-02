@@ -20,7 +20,7 @@ describe('computeResultHash', () => {
       durationMs: 1500,
       tokensIn: 10000,
       tokensOut: 3000,
-      fallbackUsed: false,
+      dispatch_mode: 'messages-api',
     };
     const hash = computeResultHash(result);
     expect(hash).toMatch(/^[a-f0-9]{64}$/);
@@ -34,7 +34,7 @@ describe('computeResultHash', () => {
       durationMs: 1500,
       tokensIn: 10000,
       tokensOut: 3000,
-      fallbackUsed: false,
+      dispatch_mode: 'messages-api',
     };
     const result2: DispatchResult = { ...result1, agent: 'rza' };
     expect(computeResultHash(result1)).not.toBe(computeResultHash(result2));
@@ -48,7 +48,7 @@ describe('computeResultHash', () => {
       durationMs: 1500,
       tokensIn: 10000,
       tokensOut: 3000,
-      fallbackUsed: false,
+      dispatch_mode: 'messages-api',
     };
     expect(computeResultHash(result)).toBe(computeResultHash(result));
   });
@@ -62,7 +62,7 @@ describe('computeResultHash', () => {
       tokensIn: 0,
       tokensOut: 0,
       error: 'timeout',
-      fallbackUsed: false,
+      dispatch_mode: 'messages-api',
     };
     expect(computeResultHash(result)).toMatch(/^[a-f0-9]{64}$/);
   });
