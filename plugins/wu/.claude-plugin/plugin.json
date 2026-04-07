@@ -1,7 +1,7 @@
 {
   "name": "wu",
   "version": "0.1.0",
-  "description": "Zero-slop development with persona-driven analysis and cloud-first agent dispatch.",
+  "description": "Zero-slop development with persona-driven analysis and remote LLM inference.",
   "author": {
     "name": "Guy Grigsby"
   },

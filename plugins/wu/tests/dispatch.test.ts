@@ -3,7 +3,7 @@
  * Note: These test the dispatcher logic, not the SDK integration (which requires live API).
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { computeResultHash, parseVerdict } from '../lib/dispatch.js';
 import type { AgentDefinition, DispatchResult } from '../lib/types.js';
 
@@ -20,7 +20,7 @@ describe('computeResultHash', () => {
       durationMs: 1500,
       tokensIn: 10000,
       tokensOut: 3000,
-      fallbackUsed: false,
+      dispatch_mode: 'messages-api',
     };
     const hash = computeResultHash(result);
     expect(hash).toMatch(/^[a-f0-9]{64}$/);
@@ -34,7 +34,7 @@ describe('computeResultHash', () => {
       durationMs: 1500,
       tokensIn: 10000,
       tokensOut: 3000,
-      fallbackUsed: false,
+      dispatch_mode: 'messages-api',
     };
     const result2: DispatchResult = { ...result1, agent: 'rza' };
     expect(computeResultHash(result1)).not.toBe(computeResultHash(result2));
@@ -48,7 +48,7 @@ describe('computeResultHash', () => {
       durationMs: 1500,
       tokensIn: 10000,
       tokensOut: 3000,
-      fallbackUsed: false,
+      dispatch_mode: 'messages-api',
     };
     expect(computeResultHash(result)).toBe(computeResultHash(result));
   });
@@ -62,7 +62,7 @@ describe('computeResultHash', () => {
       tokensIn: 0,
       tokensOut: 0,
       error: 'timeout',
-      fallbackUsed: false,
+      dispatch_mode: 'messages-api',
     };
     expect(computeResultHash(result)).toMatch(/^[a-f0-9]{64}$/);
   });
@@ -173,20 +173,37 @@ describe('parseVerdict', () => {
 // ---------------------------------------------------------------------------
 
 describe('AgentDispatcher constructor', () => {
-  it('throws when no API key is available', async () => {
-    const saved = process.env['ANTHROPIC_API_KEY'];
-    delete process.env['ANTHROPIC_API_KEY'];
-    try {
-      const { AgentDispatcher } = await import('../lib/dispatch.js');
-      expect(() => new AgentDispatcher()).toThrow('API key');
-    } finally {
-      if (saved) process.env['ANTHROPIC_API_KEY'] = saved;
-    }
+  it('accepts a DispatchPort', async () => {
+    const { AgentDispatcher } = await import('../lib/dispatch.js');
+    const mockPort = {
+      mode: 'messages-api' as const,
+      dispatch: vi.fn().mockResolvedValue([]),
+    };
+    expect(() => new AgentDispatcher(mockPort)).not.toThrow();
   });
 
-  it('accepts explicit API key', async () => {
+  it('delegates dispatch to the port', async () => {
     const { AgentDispatcher } = await import('../lib/dispatch.js');
-    expect(() => new AgentDispatcher('test-key-123')).not.toThrow();
+    const mockResult: DispatchResult = {
+      agent: 'gza',
+      verdict: { verdict: 'pass', confidence: 0.9, findings: [] },
+      status: 'completed',
+      durationMs: 100,
+      tokensIn: 1000,
+      tokensOut: 500,
+      dispatch_mode: 'messages-api',
+    };
+    const mockPort = {
+      mode: 'messages-api' as const,
+      dispatch: vi.fn().mockResolvedValue([mockResult]),
+    };
+    const dispatcher = new AgentDispatcher(mockPort);
+    const results = await dispatcher.dispatch(
+      [{ alias: 'gza', displayName: 'GZA', role: 'Architect', persona: 'test', model: 'opus', tools: [] }],
+      'test prompt',
+    );
+    expect(mockPort.dispatch).toHaveBeenCalled();
+    expect(results[0].agent).toBe('gza');
   });
 });
 

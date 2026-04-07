@@ -24,17 +24,19 @@ You are running the **risk** command for wu.
 
    Wait for the user's answer before proceeding.
 
-3. **Dispatch GZA + Raekwon via the Agent SDK CLI:**
+3. **Dispatch GZA + Raekwon via the Messages API CLI.** Use the Bash tool. Set Bash tool timeout to 600000ms (10 minutes) for this dispatch call.
+
+   Write the prompt to a temp file first, then pass it via `--prompt-file`:
 
    ```bash
    npx wu-dispatch \
      --phase risk-analysis \
      --agents gza,raekwon \
-     --prompt "<risk assessment scope and context>" \
+     --prompt-file /tmp/wu-dispatch-prompt.txt \
      --wu-dir .wu
    ```
 
-   **If the CLI fails**, fall back to the local Agent tool — dispatch each agent as a subagent with its wu alias. Log: `"Cloud dispatch failed, using local fallback."`
+   If `npx wu-dispatch` exits non-zero, show the error (exit code and stderr) to the user and **stop**. Do not attempt local dispatch as a fallback. The user must fix the issue (missing API key, network error, etc.) and re-run the command.
 
    Agent focus areas:
    - **GZA** (Technical Architect) — Analyze architectural risks: complexity, coupling, scalability bottlenecks, single points of failure, data integrity concerns.

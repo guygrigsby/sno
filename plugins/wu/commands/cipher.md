@@ -43,18 +43,20 @@ This command can be run at any time during the wu lifecycle. It does NOT advance
    - Ask: "Slop threshold is set to <default>. Change it? (Enter a number 0.0-1.0, or press enter to keep default)"
    - Wait for the user's answer.
 
-5. **Run cryptographic analysis via the Agent SDK CLI.**
+5. **Run cryptographic analysis via the Messages API CLI.** Use the Bash tool to run the CLI. Set Bash tool timeout to 600000ms (10 minutes) for this dispatch call.
+
+   Write the prompt to a temp file first, then pass it via `--prompt-file`:
 
    ```bash
    npx wu-dispatch \
      --phase cipher \
      --agents gza \
      --model opus \
-     --prompt "<artifact content for crypto analysis>" \
+     --prompt-file /tmp/wu-dispatch-prompt.txt \
      --wu-dir .wu
    ```
 
-   **If the CLI fails**, fall back to local Agent tool dispatch using `wu:gza`. Log: `"Cloud dispatch failed, using local fallback."`
+   If `npx wu-dispatch` exits non-zero, show the error (exit code and stderr) to the user and **stop**. Do not attempt local dispatch as a fallback. The user must fix the issue (missing API key, network error, etc.) and re-run the command.
 
    GZA performs a dual-pass cryptographic analysis of the artifact:
      - **Code scan**: weak/deprecated algorithms, hardcoded secrets, insufficient key lengths, bad TLS config, insecure RNG, timing-vulnerable comparisons.
@@ -63,17 +65,21 @@ This command can be run at any time during the wu lifecycle. It does NOT advance
    - If GZA finds **critical** crypto findings, flag them immediately before continuing to the reviewer dispatch — the user may want to abort early.
    - If the artifact contains no cryptographic code or usage, GZA reports `verdict: "pass"` with an info-level finding: "No cryptographic usage detected in artifact."
 
-6. **Dispatch the selected reviewers via the Agent SDK CLI.**
+6. **Dispatch the selected reviewers via the Messages API CLI.** Use the Bash tool. Set Bash tool timeout to 600000ms (10 minutes) for this dispatch call.
+
+   Write the prompt to a temp file first, then pass it via `--prompt-file`:
 
    ```bash
    npx wu-dispatch \
      --phase cipher \
      --agents <selected-reviewer-aliases> \
-     --prompt "<artifact content for review>" \
+     --prompt-file /tmp/wu-dispatch-prompt.txt \
      --wu-dir .wu
    ```
 
-   **If the CLI fails**, fall back to local Agent tool dispatch. Each reviewer runs in parallel.
+   If `npx wu-dispatch` exits non-zero, show the error (exit code and stderr) to the user and **stop**. Do not attempt local dispatch as a fallback. The user must fix the issue (missing API key, network error, etc.) and re-run the command.
+
+   Each reviewer runs in parallel.
    - Each reviewer produces a verdict using the standard schema:
      ```json
      {

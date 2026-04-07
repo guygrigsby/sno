@@ -19,7 +19,7 @@ const EXPECTED_AGENTS = [
 ] as const;
 
 const EXPECTED_COMMANDS = [
-  'wu', 'new', 'go', 'abort', 'learn', 'plan', 'build',
+  'wu', 'new', 'abort', 'learn', 'plan', 'build',
   'check', 'ship', 'cipher', 'status', 'replay', 'override',
   'crew', 'audit', 'risk', 'gate',
 ] as const;
@@ -219,9 +219,9 @@ describe('agent files', () => {
 // ---------------------------------------------------------------------------
 
 describe('command files', () => {
-  it('has exactly 17 command files', () => {
+  it('has exactly 16 command files', () => {
     const cmdFiles = fs.readdirSync(COMMANDS_DIR).filter((f) => f.endsWith('.md'));
-    expect(cmdFiles.length).toBe(17);
+    expect(cmdFiles.length).toBe(16);
   });
 
   for (const cmd of EXPECTED_COMMANDS) {
@@ -292,6 +292,36 @@ describe('phase pipeline coverage', () => {
 
     const unreferencedPhases = PHASES.filter((phase) => !allCommandContent.includes(phase));
     expect(unreferencedPhases).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Command files contain no local fallback references
+// ---------------------------------------------------------------------------
+
+describe('command files contain no local fallback references', () => {
+  const FORBIDDEN_PATTERNS = [
+    /Agent tool/i,
+    /local fallback/i,
+    /LAST-RESORT/,
+    /fall back to.*local/i,
+    /subagent_type.*wu:/,
+  ];
+
+  const cmdDir = path.join(PLUGIN_ROOT, 'commands');
+  const cmdFiles = fs.readdirSync(cmdDir).filter((f) => f.endsWith('.md'));
+
+  for (const file of cmdFiles) {
+    it(`${file} has no local fallback references`, () => {
+      const content = fs.readFileSync(path.join(cmdDir, file), 'utf-8');
+      for (const pattern of FORBIDDEN_PATTERNS) {
+        expect(content).not.toMatch(pattern);
+      }
+    });
+  }
+
+  it('go.md does not exist', () => {
+    expect(fs.existsSync(path.join(COMMANDS_DIR, 'go.md'))).toBe(false);
   });
 });
 

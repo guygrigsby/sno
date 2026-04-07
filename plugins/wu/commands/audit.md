@@ -14,17 +14,19 @@ You are running the **audit** command for wu.
      - Create `.wu/audit.jsonl` (empty)
      - Do **not** create a full cycle state. This is a standalone operation.
 
-2. **Dispatch Masta Killa via the Agent SDK CLI:**
+2. **Dispatch Masta Killa via the Messages API CLI.** Use the Bash tool. Set Bash tool timeout to 600000ms (10 minutes) for this dispatch call.
+
+   Write the prompt to a temp file first, then pass it via `--prompt-file`:
 
    ```bash
    npx wu-dispatch \
      --phase license-check \
      --agents masta-killa \
-     --prompt "<compliance audit scope and project context>" \
+     --prompt-file /tmp/wu-dispatch-prompt.txt \
      --wu-dir .wu
    ```
 
-   **If the CLI fails**, fall back to the local Agent tool — dispatch as `wu:masta-killa`. Log: `"Cloud dispatch failed, using local fallback."`
+   If `npx wu-dispatch` exits non-zero, show the error (exit code and stderr) to the user and **stop**. Do not attempt local dispatch as a fallback. The user must fix the issue (missing API key, network error, etc.) and re-run the command.
 
    Masta Killa (Compliance Specialist) runs the audit.
 

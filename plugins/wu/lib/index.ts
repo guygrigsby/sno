@@ -1,5 +1,9 @@
 export * from './types.js';
-export { AgentDispatcher, computeResultHash } from './dispatch.js';
+export { AgentDispatcher, computeResultHash, parseVerdict } from './dispatch.js';
+export { MessagesApiDispatchAdapter } from './messages-adapter.js';
+export type { MessagesAdapterConfig } from './messages-adapter.js';
+export { executeTool } from './tools.js';
+export type { ToolResult } from './tools.js';
 export { loadAgents, loadAgentsByAlias } from './agent-loader.js';
 export { StateManager } from './state.js';
 export type { CycleState, CycleConfig, PhaseRecord } from './state.js';

@@ -131,6 +131,19 @@ export interface Resolution {
 // Dispatch
 // ---------------------------------------------------------------------------
 
+/** How an agent dispatch was executed. */
+export type DispatchMode = 'messages-api' | 'messages-api-tools';
+
+/** Port abstraction for agent dispatch strategies. */
+export interface DispatchPort {
+  dispatch(
+    agents: AgentDefinition[],
+    prompt: string,
+    options?: DispatchOptions
+  ): Promise<DispatchResult[]>;
+  readonly mode: DispatchMode;
+}
+
 export interface AgentDefinition {
   alias: AgentAlias;
   displayName: string;
@@ -146,6 +159,7 @@ export interface DispatchOptions {
   maxRetries?: number;
   onProgress?: (agent: AgentAlias, index: number, total: number) => void;
   onCostEstimate?: (estimate: CostEstimate) => Promise<boolean>;
+  maxTokens?: number;
 }
 
 export interface DispatchResult {
@@ -156,7 +170,7 @@ export interface DispatchResult {
   tokensIn: number;
   tokensOut: number;
   error?: string;
-  fallbackUsed: boolean;
+  dispatch_mode: DispatchMode;
 }
 
 export interface CostEstimate {
@@ -173,6 +187,8 @@ export interface CostEstimate {
 
 export interface AuditEntry {
   timestamp: string;
+  dispatch_id: string;
+  dispatch_mode: string;
   agent: string;
   phase: string;
   target: string;

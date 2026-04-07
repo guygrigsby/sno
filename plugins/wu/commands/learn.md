@@ -23,40 +23,43 @@ You are in the **learn** phase of wu.
    - Present a summary table: agent name, model tier, estimated cost tier (low/medium/high).
    - Ask the user for explicit confirmation before proceeding. Do not proceed without it.
 
-5. **Dispatch primary agents via the Agent SDK CLI.** Build the prompt from the user's task description plus any cross-cycle memory from step 3. Then run:
+5. **Dispatch primary agents via the Messages API CLI.** Use the Bash tool to run the CLI. Set Bash tool timeout to 600000ms (10 minutes) for this dispatch call.
+
+   Build the prompt from the user's task description plus any cross-cycle memory from step 3. Write the prompt to a temp file first, then pass it via `--prompt-file`.
 
    ```bash
    npx wu-dispatch \
      --phase learn \
      --agents gza,ghostface,raekwon,masta-killa \
-     --prompt "<the prompt you built>" \
+     --prompt-file /tmp/wu-dispatch-prompt.txt \
      --wu-dir .wu
    ```
 
-   This fans out 4 agents in parallel on Anthropic's infrastructure via the Agent SDK. The CLI outputs JSON results to stdout and progress to stderr.
+   This fans out 4 agents in parallel on Anthropic infrastructure via the Messages API. The CLI outputs JSON results to stdout and progress to stderr. Parse the JSON stdout for verdict data.
 
-   **If the CLI fails** (missing API key, network error, SDK unavailable), fall back to the local Agent tool — dispatch each agent as a subagent with `subagent_type` matching its alias (e.g., `wu:gza`, `wu:ghostface`). Log a warning: `"Cloud dispatch failed, using local fallback."` Each agent gets its persona from `plugins/wu/agents/`, plus:
+   If `npx wu-dispatch` exits non-zero, show the error (exit code and stderr) to the user and **stop**. Do not attempt local dispatch as a fallback. The user must fix the issue (missing API key, network error, etc.) and re-run the command.
+
+   Each agent gets its persona from `plugins/wu/agents/`, plus:
    - **GZA** (Technical Architect) — Analyze the domain. Identify bounded contexts, key entities, architectural constraints, and system boundaries.
    - **Ghostface** (Domain Researcher) — Research the problem space. Write requirements, clarify user intent, identify edge cases.
    - **Raekwon** (Implementation Strategist) — Survey practical implementation patterns, libraries, frameworks, prior art.
    - **Masta Killa** (Compliance) — Run an initial compliance scan for licensing, security, accessibility.
 
-6. **Show progress** as each agent completes. The CLI prints progress to stderr automatically. If using local fallback, print:
-   - `"GZA (Technical Architect) completed [1/4]"`
-   - `"Ghostface (Domain Researcher) completed [2/4]"`
-   - Continue until all 4 are done.
+6. **Show progress** as each agent completes. The CLI prints progress to stderr automatically.
 
-7. **Run cipher rounds** (use the count from config, default 3). For each round, dispatch via the CLI:
+7. **Run cipher rounds** (use the count from config, default 3). For each round, write the prompt to a temp file first, then dispatch via the CLI using the Bash tool. Set Bash tool timeout to 600000ms (10 minutes) for this dispatch call.
 
    ```bash
    npx wu-dispatch \
      --phase learn \
      --agents inspectah-deck,masta-killa \
-     --prompt "<primary agent outputs for cross-check>" \
+     --prompt-file /tmp/wu-dispatch-prompt.txt \
      --wu-dir .wu
    ```
 
-   If CLI fails, fall back to local Agent tool dispatch. Inspectah Deck and Masta Killa cross-check the primary agents' output.
+   If `npx wu-dispatch` exits non-zero, show the error (exit code and stderr) to the user and **stop**. Do not attempt local dispatch as a fallback. The user must fix the issue (missing API key, network error, etc.) and re-run the command.
+
+   Inspectah Deck and Masta Killa cross-check the primary agents' output.
    - They should detect conflicts, assess confidence, and compute:
      - **Concordance score**: how much the agents agree (0-100).
      - **Slop score**: how much output looks like filler or hallucination (0-100, lower is better).

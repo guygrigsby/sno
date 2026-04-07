@@ -35,10 +35,10 @@ new -> learn -> plan -> build -> check -> ship
 | Command | What it does |
 |---------|-------------|
 | `/sno:new` | Start a new cycle. Pulls latest, creates a branch, archives previous cycle. |
-| `/sno:learn` | Understand the problem. Parallel Opus agents research the domain, data model, and codebase. Then asks you targeted questions. Produces a spec. |
-| `/sno:plan` | Break the spec into structured tasks with verify/done criteria per task. Parallel agents review for antipatterns, UX, and coverage gaps. |
-| `/sno:build` | Execute tasks in parallel waves with per-wave commits |
-| `/sno:check` | Verify work against the spec. Runs a PR-style code review agent alongside acceptance criteria checks. Auto-diagnoses failures. |
+| `/sno:learn` | Understand the problem. 7 parallel Opus agents research domain, data model, codebase, security, and assumptions. Structured intake template, tiered interview (blocking questions first, refinement with opt-out). Produces a spec. |
+| `/sno:plan` | Discover available MCP tools, then break the spec into structured tasks with verify/done criteria per task. Parallel agents review for antipatterns, UX, and coverage gaps. |
+| `/sno:build` | Execute tasks in parallel waves with per-wave commits. MCP tools assigned to tasks are available to build agents. |
+| `/sno:check` | Verify work against the spec. Runs PR review, security audit, and test coverage agents alongside acceptance criteria checks. Auto-diagnoses failures. |
 | `/sno:ship` | Commit remaining changes, create a PR if needed, and close out the cycle |
 | `/sno:go` | Quick mode -- skip the ceremony for small tasks |
 | `/sno:todo` | Parking lot for later |
@@ -57,29 +57,34 @@ The learn phase spawns parallel Opus agents to research before writing a single 
 | `data-modeler` | Entity/relationship modeling, 5NF normalization |
 | `codebase-scout` | Existing code patterns, conventions, dependencies, risks |
 | `service-layer-analyst` | API boundaries, orchestration, transaction scoping, cross-cutting concerns |
-| `requirements-interviewer` | Synthesizes open questions from all agents into a focused interview (runs after the others complete) |
+| `assumption-miner` | Reads user's description, lists unstated assumptions for correction ("I'm assuming X because Y -- correct?") |
+| `security-researcher` | Identifies security risks, attack vectors, OWASP concerns, bucket/DB permissions, supply chain risks, compliance |
+| `requirements-interviewer` | Synthesizes open questions into a tiered interview -- blocking questions first, then refinement with opt-out (runs after the others complete) |
 
 ### Plan Phase
+
+**Step 1: MCP Discovery** -- discovers available MCP servers/tools, writes recommendations to `.sno/research/available-tools.md`
 
 **Wave 1 (parallel):**
 
 | Agent | Role |
 |-------|------|
-| `planner` | Task decomposition, dependency graph, wave planning, coverage matrix |
-| `ux-reviewer` | Interaction flows, error UX, CLI/TUI/GUI ergonomics, accessibility |
+| `planner` | Task decomposition, dependency graph, wave planning, coverage matrix, MCP tool assignment |
+| `ux-reviewer` | Interaction flows, error UX, CLI/TUI/GUI ergonomics, WCAG 2.1 AA accessibility, colorblind safety |
 | `antipattern-detector` | Tech stack gotchas, domain antipatterns, security pitfalls, dependency risks |
 
 **Wave 2 (after wave 1):**
 
 | Agent | Role |
 |-------|------|
-| `critical-reviewer` | Adversarial review of the assembled plan -- coverage gaps, dependency correctness, missed risks, scope drift |
+| `critical-reviewer` | Adversarial review of the assembled plan -- coverage gaps, dependency correctness, missed risks, security coverage, scope drift |
 
 ### Check Phase
 
 | Agent | Role |
 |-------|------|
 | `pr-reviewer` | Full PR-style code review of the diff against the base branch. Reviews correctness, security, performance, consistency, maintainability, and test coverage. Returns a structured verdict (APPROVE / REQUEST CHANGES / COMMENT). Critical issues block shipping. |
+| `security-auditor` | Reviews code diff for security vulnerabilities. Verifies threat mitigations from learn phase are implemented. Checks security requirements coverage. Returns verdict (PASS / FAIL). Critical security issues block shipping. |
 
 ## Design Principles
 

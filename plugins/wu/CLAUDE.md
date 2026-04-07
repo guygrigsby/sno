@@ -17,7 +17,7 @@
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠⠟⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ```
 
-Zero-slop development with persona-driven analysis and cloud-first agent dispatch.
+Zero-slop development with persona-driven analysis and remote LLM inference.
 
 ## The Loop
 
@@ -44,7 +44,7 @@ Zero-slop development with persona-driven analysis and cloud-first agent dispatc
 
 - **Zero-slop tolerance.** Multi-pass cross-verification via cipher rounds. Every phase output is re-examined by independent agents to catch hallucinations, unsupported claims, and drift.
 - **Persona-driven analysis.** Wu-Tang agents with decision-affecting personas. Each agent has a distinct analytical lens that shapes how it evaluates work.
-- **Cloud-first execution.** Agent SDK dispatch with local fallback. Prefer remote agent execution for parallelism and cost tracking; fall back to local when unavailable.
+- **Remote LLM inference (MANDATORY).** Agent dispatch goes through `npx wu-dispatch` which calls the Anthropic Messages API directly. LLM inference runs on Anthropic infrastructure. Tool execution (file reads/writes for build agents) runs locally. No local Agent tool fallback — if the CLI fails, it fails.
 - **Context handoff between every phase.** Each phase produces a summary.md, clears context, and the next phase reloads from that summary. No implicit state leakage.
 - **Append-only audit trail.** Every agent dispatch, result, and token cost is recorded in .wu/audit.jsonl. Immutable history for debugging and cost analysis.
 

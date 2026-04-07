@@ -1,14 +1,14 @@
 /**
- * AgentDispatcher — batched, retrying, cost-aware agent dispatch via the Claude Agent SDK.
+ * AgentDispatcher — batched, retrying, cost-aware agent dispatch via DispatchPort.
  */
 
 import { createHash } from 'node:crypto';
-import { query } from '@anthropic-ai/claude-agent-sdk';
 import type {
   AgentAlias,
   AgentDefinition,
   CostEstimate,
   DispatchOptions,
+  DispatchPort,
   DispatchResult,
   ModelTier,
   Verdict,
@@ -156,16 +156,10 @@ export function parseVerdict(text: string): Verdict {
 // ---------------------------------------------------------------------------
 
 export class AgentDispatcher {
-  private readonly apiKey: string;
+  private readonly port: DispatchPort;
 
-  constructor(apiKey?: string) {
-    const key = apiKey ?? process.env['ANTHROPIC_API_KEY'];
-    if (!key) {
-      throw new Error(
-        'AgentDispatcher requires an API key. Pass one to the constructor or set ANTHROPIC_API_KEY.',
-      );
-    }
-    this.apiKey = key;
+  constructor(port: DispatchPort) {
+    this.port = port;
   }
 
   /**
@@ -197,7 +191,7 @@ export class AgentDispatcher {
           tokensIn: 0,
           tokensOut: 0,
           error: 'Dispatch aborted: cost estimate rejected by user',
-          fallbackUsed: false,
+          dispatch_mode: this.port.mode,
         }));
       }
     }
@@ -210,7 +204,7 @@ export class AgentDispatcher {
       const batch = agents.slice(i, i + batchSize);
       const batchResults = await Promise.all(
         batch.map((agent) =>
-          this.dispatchSingle(agent, prompt, timeoutMs, maxRetries).then(
+          this.dispatchSingle(agent, prompt, timeoutMs, maxRetries, options).then(
             (result) => {
               completedCount++;
               options?.onProgress?.(agent.alias, completedCount, agents.length);
@@ -234,25 +228,22 @@ export class AgentDispatcher {
     prompt: string,
     timeoutMs: number,
     maxRetries: number,
+    options?: DispatchOptions,
   ): Promise<DispatchResult> {
     let lastError: string | undefined;
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       const start = Date.now();
       try {
-        const response = await withTimeout(
-          this.invokeAgent(agent, prompt),
+        const [result] = await withTimeout(
+          this.port.dispatch([agent], prompt, options),
           timeoutMs,
         );
 
         return {
-          agent: agent.alias,
-          verdict: response.verdict,
-          status: attempt > 0 ? 'retried' : 'completed',
+          ...result,
+          status: attempt > 0 ? 'retried' : result.status,
           durationMs: Date.now() - start,
-          tokensIn: response.tokensIn,
-          tokensOut: response.tokensOut,
-          fallbackUsed: false,
         };
       } catch (err: unknown) {
         const elapsed = Date.now() - start;
@@ -260,7 +251,6 @@ export class AgentDispatcher {
         lastError = message;
 
         if (message === 'TimeoutError') {
-          // Timeouts are not retried — the agent is too slow.
           console.warn(`[wu] Agent ${agent.alias} timed out after ${elapsed}ms`);
           return {
             agent: agent.alias,
@@ -270,7 +260,7 @@ export class AgentDispatcher {
             tokensIn: 0,
             tokensOut: 0,
             error: `Timed out after ${timeoutMs}ms`,
-            fallbackUsed: false,
+            dispatch_mode: this.port.mode,
           };
         }
 
@@ -284,7 +274,6 @@ export class AgentDispatcher {
       }
     }
 
-    // All retries exhausted.
     console.warn(`[wu] Agent ${agent.alias} failed after ${maxRetries + 1} attempts: ${lastError}`);
     return {
       agent: agent.alias,
@@ -294,71 +283,8 @@ export class AgentDispatcher {
       tokensIn: 0,
       tokensOut: 0,
       error: lastError,
-      fallbackUsed: false,
+      dispatch_mode: this.port.mode,
     };
-  }
-
-  /**
-   * Call the Agent SDK's `query()` for a single agent and parse the verdict.
-   *
-   * `query()` returns an async generator of messages. We consume all messages
-   * and extract the final text result.
-   */
-  private async invokeAgent(
-    agent: AgentDefinition,
-    prompt: string,
-  ): Promise<{ verdict: Verdict; tokensIn: number; tokensOut: number }> {
-    const systemPrompt = [
-      `You are ${agent.displayName} (${agent.alias}).`,
-      `Role: ${agent.role}`,
-      `Persona: ${agent.persona}`,
-      '',
-      'Respond with a JSON object matching the Verdict schema:',
-      '{ "verdict": "pass"|"fail"|"conditional_pass"|"inconclusive", "confidence": 0-1, "findings": [{ "severity": "critical"|"high"|"medium"|"low"|"info", "description": "...", "location": "...", "recommendation": "..." }] }',
-      '',
-      'Respond ONLY with the JSON object. No markdown, no explanation.',
-    ].join('\n');
-
-    let finalText = '';
-    let tokensIn = 0;
-    let tokensOut = 0;
-
-    for await (const message of query({
-      prompt,
-      options: {
-        systemPrompt,
-        allowedTools: agent.tools,
-        model: agent.model,
-      },
-    })) {
-      // Collect text from messages that have it
-      const msg = message as Record<string, unknown>;
-      if (typeof msg['result'] === 'string') {
-        finalText = msg['result'];
-      } else if (typeof msg['text'] === 'string') {
-        finalText = msg['text'];
-      }
-      // Collect usage if present
-      if (msg['usage'] && typeof msg['usage'] === 'object') {
-        const usage = msg['usage'] as Record<string, number>;
-        tokensIn = usage['input_tokens'] ?? tokensIn;
-        tokensOut = usage['output_tokens'] ?? tokensOut;
-      }
-    }
-
-    if (!finalText) {
-      throw new Error(`Agent ${agent.alias} returned no text output`);
-    }
-
-    const verdict = this.parseVerdict(finalText);
-    return { verdict, tokensIn, tokensOut };
-  }
-
-  /**
-   * Parse a Verdict from the agent's text response. Throws on malformed output.
-   */
-  private parseVerdict(text: string): Verdict {
-    return parseVerdict(text);
   }
 }
 

@@ -70,6 +70,14 @@
       },
       "description": "Per-phase cipher round count. Keys are phase names, values are number of verification rounds.",
       "examples": [{"learn": 2, "plan": 1}]
+    },
+    "model_ids": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Maps ModelTier to full Anthropic model ID strings. Overrides defaults.",
+      "examples": [{"opus": "claude-opus-4-6", "sonnet": "claude-sonnet-4-6", "haiku": "claude-haiku-4-5"}]
     }
   },
   "additionalProperties": false

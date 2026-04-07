@@ -3,7 +3,7 @@
   "title": "Wu Audit Entry",
   "description": "Append-only audit log entry for agent dispatches, stored in .wu/audit.jsonl",
   "type": "object",
-  "required": ["timestamp", "agent", "phase", "target", "duration_ms", "status", "tokens_in", "tokens_out", "result_hash"],
+  "required": ["timestamp", "agent", "phase", "target", "duration_ms", "status", "tokens_in", "tokens_out", "result_hash", "dispatch_id", "dispatch_mode"],
   "properties": {
     "timestamp": {
       "type": "string",
@@ -54,6 +54,16 @@
       "description": "SHA-256 hex digest of the agent result payload for integrity verification",
       "pattern": "^[a-f0-9]{64}$",
       "examples": ["e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"]
+    },
+    "dispatch_id": {
+      "type": "string",
+      "description": "UUID correlating audit entries from a single CLI invocation",
+      "examples": ["550e8400-e29b-41d4-a716-446655440000"]
+    },
+    "dispatch_mode": {
+      "type": "string",
+      "enum": ["messages-api", "messages-api-tools"],
+      "description": "Which dispatch adapter mode was used"
     }
   },
   "additionalProperties": false

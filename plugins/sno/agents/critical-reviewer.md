@@ -28,7 +28,10 @@ You are a critical reviewer. You perform a final adversarial review of the draft
    - `.sno/research/data-model.md` — data model analysis
    - `.sno/research/codebase.md` — codebase analysis
    - `.sno/research/service-layer.md` — service layer analysis
+   - `.sno/research/assumptions.md` — user's confirmed/corrected assumptions
+   - `.sno/research/security.md` — security threats, mitigations, and compliance concerns
    - `.sno/research/answers.md` — user decisions
+   - `.sno/research/available-tools.md` (if it exists) — MCP tools available for build
    - The draft plan (provided in your prompt)
    - UX review (provided in your prompt)
    - Antipattern report (provided in your prompt)
@@ -54,7 +57,9 @@ You are a critical reviewer. You perform a final adversarial review of the draft
    - Did the antipattern detector's warnings get addressed in the plan?
    - Are there error handling gaps? (domain errors, infrastructure failures, edge cases)
    - Are there concurrency or ordering issues the plan doesn't account for?
-   - Are there security concerns that need explicit tasks?
+   - Are security requirements from the spec's Security section covered by tasks?
+   - Are threat mitigations from `.sno/research/security.md` addressed in the plan? Each high/medium threat should have a task or be explicitly handled within an existing task.
+   - Were any critical assumptions from `.sno/research/assumptions.md` left unresolved?
 
 6. **Check UX integration:**
    - Did the UX reviewer's must-have recommendations get tasks?

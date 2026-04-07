@@ -16,13 +16,15 @@ You are in the **plan** phase of wu.
    - Show estimated cost by agent and model tier.
    - Ask the user for explicit confirmation. Do not proceed without it.
 
-4. **Dispatch planning agents via the Agent SDK CLI.** Build the prompt from the learn summary. Then run:
+4. **Dispatch planning agents via the Messages API CLI.** Use the Bash tool to run the CLI. Set Bash tool timeout to 600000ms (10 minutes) for this dispatch call.
+
+   Build the prompt from the learn summary. Write the prompt to a temp file first, then pass it via `--prompt-file`.
 
    ```bash
    npx wu-dispatch \
      --phase plan \
      --agents gza,raekwon \
-     --prompt "<learn summary + task decomposition instructions>" \
+     --prompt-file /tmp/wu-dispatch-prompt.txt \
      --wu-dir .wu
    ```
 
@@ -30,23 +32,23 @@ You are in the **plan** phase of wu.
    - **GZA** (Technical Architect) — Decompose the domain model and spec into concrete technical tasks. Make architecture decisions (file structure, module boundaries, API shape). Assign dependencies between tasks.
    - **Raekwon** (Implementation Strategist) — Scope each task practically. Estimate complexity, identify risky tasks, suggest implementation order. Flag tasks that need spikes or prototyping.
 
-   **If the CLI fails**, fall back to the local Agent tool — dispatch each agent as a subagent with its wu alias. Log: `"Cloud dispatch failed, using local fallback."`
+   If `npx wu-dispatch` exits non-zero, show the error (exit code and stderr) to the user and **stop**. Do not attempt local dispatch as a fallback. The user must fix the issue (missing API key, network error, etc.) and re-run the command.
 
-5. **Show progress** as each agent completes. The CLI prints progress to stderr automatically. If using local fallback, print:
-   - `"GZA (Technical Architect) completed [1/2]"`
-   - `"Raekwon (Implementation Strategist) completed [2/2]"`
+5. **Show progress** as each agent completes. The CLI prints progress to stderr automatically.
 
-6. **Run cipher rounds** (use count from config, default 3). For each round, dispatch via the CLI:
+6. **Run cipher rounds** (use count from config, default 3). For each round, write the prompt to a temp file first, then dispatch via the CLI using the Bash tool. Set Bash tool timeout to 600000ms (10 minutes) for this dispatch call.
 
    ```bash
    npx wu-dispatch \
      --phase plan \
      --agents inspectah-deck,masta-killa \
-     --prompt "<task graph for verification>" \
+     --prompt-file /tmp/wu-dispatch-prompt.txt \
      --wu-dir .wu
    ```
 
-   If CLI fails, fall back to local Agent tool dispatch. Inspectah Deck and Masta Killa verify the task graph.
+   If `npx wu-dispatch` exits non-zero, show the error (exit code and stderr) to the user and **stop**. Do not attempt local dispatch as a fallback. The user must fix the issue (missing API key, network error, etc.) and re-run the command.
+
+   Inspectah Deck and Masta Killa verify the task graph.
    - They check for: missing dependencies, circular deps, scope gaps, tasks that are too large, file ownership conflicts.
    - Compute concordance and slop scores.
    - Show progress: `"Cipher round 1/3 complete — concordance: 91, slop: 8"`.

@@ -14,8 +14,10 @@
 
 import { resolve, dirname, join } from 'node:path';
 import { readFile } from 'node:fs/promises';
+import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { AgentDispatcher, computeResultHash } from './dispatch.js';
+import { MessagesApiDispatchAdapter } from './messages-adapter.js';
 import { AuditLog } from './audit.js';
 import { loadAgentsByAlias } from './agent-loader.js';
 import type { AgentAlias, AuditEntry, DispatchResult, PhaseName } from './types.js';
@@ -28,6 +30,8 @@ interface CliArgs {
   phase: PhaseName;
   agents: AgentAlias[];
   prompt: string;
+  promptFile?: string;
+  dispatchId: string;
   wuDir?: string;
   batchSize?: number;
   timeoutMs?: number;
@@ -37,17 +41,18 @@ interface CliArgs {
 
 function usage(): never {
   console.error(`
-wu-dispatch — fan out wu agents via the Claude Agent SDK.
+wu-dispatch — fan out wu agents via the Anthropic Messages API.
 
 Usage:
-  wu-dispatch --phase <name> --agents <alias,...> --prompt <text>
   wu-dispatch --phase <name> --agents <alias,...> --prompt-file <path>
+  wu-dispatch --phase <name> --agents <alias,...> --prompt <text>  (deprecated)
 
 Options:
   --phase         Phase name (learn, plan, build, check, cipher, etc.)
   --agents        Comma-separated agent aliases (gza, ghostface, etc.)
-  --prompt        Prompt text to send to all agents
-  --prompt-file   Read prompt from a file instead of --prompt
+  --prompt-file   Read prompt from a file (preferred)
+  --prompt        Prompt text (deprecated — use --prompt-file to avoid shell escaping)
+  --dispatch-id   UUID to group audit entries from a single invocation (auto-generated if omitted)
   --wu-dir        Path to .wu/ directory for audit logging (optional)
   --batch-size    Max parallel agents (default: 4)
   --timeout       Timeout per agent in ms (default: 300000)
@@ -64,6 +69,7 @@ function parseArgs(argv: string[]): CliArgs {
   let agentsStr: string | undefined;
   let prompt: string | undefined;
   let promptFile: string | undefined;
+  let dispatchId: string | undefined;
   let wuDir: string | undefined;
   let batchSize: number | undefined;
   let timeoutMs: number | undefined;
@@ -76,8 +82,11 @@ function parseArgs(argv: string[]): CliArgs {
     switch (arg) {
       case '--phase': phase = next; i++; break;
       case '--agents': agentsStr = next; i++; break;
-      case '--prompt': prompt = next; i++; break;
+      case '--prompt':
+        console.error('[wu-dispatch] Warning: --prompt is deprecated. Use --prompt-file to avoid shell escaping issues.');
+        prompt = next; i++; break;
       case '--prompt-file': promptFile = next; i++; break;
+      case '--dispatch-id': dispatchId = next; i++; break;
       case '--wu-dir': wuDir = next; i++; break;
       case '--batch-size': batchSize = Number(next); i++; break;
       case '--timeout': timeoutMs = Number(next); i++; break;
@@ -99,7 +108,9 @@ function parseArgs(argv: string[]): CliArgs {
   return {
     phase: phase as PhaseName,
     agents,
-    prompt: prompt ?? '', // will be replaced by file content below
+    prompt: prompt ?? '',
+    promptFile,
+    dispatchId: dispatchId ?? randomUUID(),
     wuDir,
     batchSize,
     timeoutMs,
@@ -116,9 +127,12 @@ async function main(): Promise<void> {
   const args = parseArgs(process.argv);
 
   // Read prompt from file if needed
+  if (!args.prompt && args.promptFile) {
+    args.prompt = await readFile(resolve(args.promptFile), 'utf-8');
+  }
   if (!args.prompt) {
-    const promptFilePath = process.argv[process.argv.indexOf('--prompt-file') + 1];
-    args.prompt = await readFile(resolve(promptFilePath), 'utf-8');
+    console.error('[wu-dispatch] Error: no prompt provided');
+    process.exit(1);
   }
 
   // Locate agents/ directory relative to this file
@@ -135,12 +149,16 @@ async function main(): Promise<void> {
     }
   }
 
-  // Create dispatcher
-  const dispatcher = new AgentDispatcher();
+  // Create dispatch adapter and dispatcher
+  const adapter = new MessagesApiDispatchAdapter({
+    projectRoot: process.cwd(),
+  });
+  const dispatcher = new AgentDispatcher(adapter);
 
   // Dispatch with progress to stderr
   const startTime = Date.now();
   console.error(`[wu-dispatch] Phase: ${args.phase}`);
+  console.error(`[wu-dispatch] Dispatch ID: ${args.dispatchId}`);
   console.error(`[wu-dispatch] Dispatching ${agentDefs.length} agents: ${agentDefs.map((a) => a.alias).join(', ')}`);
 
   const results = await dispatcher.dispatch(agentDefs, args.prompt, {
@@ -161,6 +179,8 @@ async function main(): Promise<void> {
     for (const result of results) {
       const entry: AuditEntry = {
         timestamp: new Date().toISOString(),
+        dispatch_id: args.dispatchId,
+        dispatch_mode: result.dispatch_mode,
         agent: result.agent,
         phase: args.phase,
         target: 'cli-dispatch',

@@ -47,6 +47,7 @@ When spawning a parallel build agent, give it this context:
 - Existing code context (read the files it depends on so it has the types/interfaces)
 
 Tell each agent:
+- If the task specifies a `tools:` field in the plan, list those MCP tools so the agent knows they're available for use.
 - Only touch the files listed in your task. Smallest diff that works — no drive-by refactors, no adjacent cleanup.
 - Implement exactly what the task describes. Nothing more.
 - **Write tests alongside your implementation.** Tests are part of "done" — a task without tests is not complete. Follow the test patterns and framework described in the spec's Test Strategy section (or match existing test patterns in the codebase). If your task modifies behavior, test that behavior.

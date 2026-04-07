@@ -25,7 +25,7 @@ You are running the **gate** command for wu.
 
    Wait for the user's answer. Do not guess or pick a default.
 
-3. **Dispatch appropriate agents via the Agent SDK CLI** based on the selected gate:
+3. **Dispatch appropriate agents via the Messages API CLI** based on the selected gate. Use the Bash tool. Set Bash tool timeout to 600000ms (10 minutes) for this dispatch call.
 
    | Gate | Agents | Focus |
    |------|--------|-------|
@@ -36,15 +36,17 @@ You are running the **gate** command for wu.
    | `risk` | GZA, Raekwon | Assess architectural and implementation risks. |
    | `performance` | GZA, U-God | Evaluate performance implications and tradeoffs. |
 
+   Write the prompt to a temp file first, then pass it via `--prompt-file`:
+
    ```bash
    npx wu-dispatch \
      --phase gate \
      --agents <agents-for-selected-gate> \
-     --prompt "<gate evaluation prompt with context>" \
+     --prompt-file /tmp/wu-dispatch-prompt.txt \
      --wu-dir .wu
    ```
 
-   **If the CLI fails**, fall back to the local Agent tool — dispatch each agent as a subagent with its wu alias. Log: `"Cloud dispatch failed, using local fallback."`
+   If `npx wu-dispatch` exits non-zero, show the error (exit code and stderr) to the user and **stop**. Do not attempt local dispatch as a fallback. The user must fix the issue (missing API key, network error, etc.) and re-run the command.
 
 4. **Evaluate gate criteria.** Each gate has pass/fail criteria:
    - `slop-check`: Pass if slop score <= 15. Fail if > 15.

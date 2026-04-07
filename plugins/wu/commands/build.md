@@ -22,20 +22,22 @@ You are in the **build** phase of wu.
       - Show how many agents will run, which model tier, and estimated cost.
       - Ask the user for confirmation before dispatching. Do not proceed without it.
 
-   b. **Dispatch agents via the Agent SDK CLI.** Build the prompt from the task description, file list, verification criteria, and plan/learn summaries. Then run:
+   b. **Dispatch agents via the Messages API CLI.** Use the Bash tool to run the CLI. Set Bash tool timeout to 600000ms (10 minutes) for this dispatch call.
+
+      Build the prompt from the task description, file list, verification criteria, and plan/learn summaries. Write the prompt to a temp file first, then pass it via `--prompt-file`.
 
       ```bash
       npx wu-dispatch \
         --phase build \
         --agents <agent-aliases-for-this-wave> \
-        --prompt "<task prompt with context>" \
+        --prompt-file /tmp/wu-dispatch-prompt.txt \
         --wu-dir .wu \
         --batch-size <from config, default 4>
       ```
 
       Assign agent personas based on task type: GZA for architecture tasks, Raekwon for implementation, Ghostface for spec-heavy work, etc.
 
-      **If the CLI fails**, fall back to the local Agent tool — dispatch each agent as a subagent with its wu alias. Log: `"Cloud dispatch failed, using local fallback."`
+      If `npx wu-dispatch` exits non-zero, show the error (exit code and stderr) to the user and **stop**. Do not attempt local dispatch as a fallback. The user must fix the issue (missing API key, network error, etc.) and re-run the command.
 
    c. **Batch concurrency**: the CLI respects `--batch-size` (default 4, configurable in `.wu/config.json`).
 

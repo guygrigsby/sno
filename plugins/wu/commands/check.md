@@ -21,20 +21,21 @@ You are in the **check** phase of wu.
      > "The check phase will dispatch multiple reviewer agents and run 4 compliance sub-phases. This is the most agent-intensive phase. Continue?"
    - Wait for confirmation before proceeding.
 
-4. **Run cipher rounds** (default: 2 rounds per `config.cipher_rounds.check`).
-   For each round, dispatch via the Agent SDK CLI:
+4. **Run cipher rounds via the Messages API CLI.** Default: 2 rounds per `config.cipher_rounds.check`. Use the Bash tool to run the CLI. Set Bash tool timeout to 600000ms (10 minutes) for this dispatch call.
+
+   For each round, write the prompt to a temp file first, then pass it via `--prompt-file`:
 
    ```bash
    npx wu-dispatch \
      --phase check \
      --agents gza,inspectah-deck,masta-killa,raekwon,odb \
-     --prompt "<build output and diff for review>" \
+     --prompt-file /tmp/wu-dispatch-prompt.txt \
      --wu-dir .wu
    ```
 
    GZA runs at opus tier for crypto analysis (code scan + design review). If GZA finds critical crypto findings, flag them immediately before continuing.
 
-   **If the CLI fails**, fall back to local Agent tool dispatch using each agent's wu alias. Log: `"Cloud dispatch failed, using local fallback."`
+   If `npx wu-dispatch` exits non-zero, show the error (exit code and stderr) to the user and **stop**. Do not attempt local dispatch as a fallback. The user must fix the issue (missing API key, network error, etc.) and re-run the command.
 
    **ODB constraints (mandatory):**
    - ODB is NEVER the sole reviewer. There must always be at least 2 structured reviewers alongside ODB.

@@ -44,25 +44,31 @@ The learn phase spawns parallel Opus agents:
 - `data-modeler` -- entity/relationship modeling, 5NF normalization
 - `codebase-scout` -- existing code patterns, conventions, risks
 - `service-layer-analyst` -- API boundaries, orchestration, transaction scoping, cross-cutting concerns
-- `requirements-interviewer` -- synthesizes open questions from all agents into focused interview
+- `assumption-miner` -- reads user's description, lists unstated assumptions for correction
+- `security-researcher` -- identifies security risks, attack vectors, OWASP concerns, compliance requirements
+- `requirements-interviewer` -- synthesizes open questions from all agents into tiered interview (blocking vs. refinement)
 
 ## Plan Phase Agents
 
-The plan phase spawns parallel Opus agents, then a critical reviewer:
+The plan phase discovers available MCP tools, then spawns parallel Opus agents and a critical reviewer:
+
+**Step 1: MCP Discovery**
+- Discovers available MCP servers/tools via ToolSearch, writes to `.sno/research/available-tools.md`
 
 **Wave 1 (parallel):**
-- `planner` -- task decomposition, dependency graph, wave planning, coverage matrix
-- `ux-reviewer` -- interaction flows, error UX, CLI/TUI/GUI ergonomics, accessibility
+- `planner` -- task decomposition, dependency graph, wave planning, coverage matrix, MCP tool assignment
+- `ux-reviewer` -- interaction flows, error UX, CLI/TUI/GUI ergonomics, WCAG 2.1 AA accessibility
 - `antipattern-detector` -- tech stack gotchas, domain antipatterns, security pitfalls, dependency risks
 
 **Wave 2 (after wave 1 completes):**
-- `critical-reviewer` -- adversarial review of the assembled plan, checks coverage gaps, dependency correctness, missed risks, and scope drift
+- `critical-reviewer` -- adversarial review of the assembled plan, checks coverage gaps, dependency correctness, missed risks, security coverage, and scope drift
 
 ## Check Phase Agents
 
 The check phase spawns agents in parallel alongside the acceptance criteria verification:
 
 - `pr-reviewer` -- full PR-style code review of the diff against the base branch. Reviews correctness, security, performance, consistency, maintainability, and test coverage. Missing tests on new code paths are a critical (shipping-blocking) issue. Returns a structured review with verdict (APPROVE / REQUEST CHANGES / COMMENT). Critical issues block shipping.
+- `security-auditor` -- reviews code diff for security vulnerabilities, verifies threat mitigations from learn phase are implemented, checks security requirements coverage. Returns verdict (PASS / FAIL). Critical security issues block shipping.
 - `test-coverage` -- identifies new/modified code paths in the diff and verifies each has corresponding test coverage. Gaps block shipping.
 - `codex review` (conditional) -- if the codex plugin is installed, runs an additional code review pass via `/codex:rescue`. Skipped silently if not available.
 
@@ -73,7 +79,12 @@ All workflow state lives in `.sno/` in the user's project directory:
 - `spec.md` -- the spec
 - `plan.md` -- the task list
 - `todos.md` -- parking lot
-- `research/` -- agent outputs from learn phase
+- `research/` -- agent outputs from learn and plan phases
+  - `prior-art.md`, `domain.md`, `data-model.md`, `codebase.md`, `service-layer.md`
+  - `assumptions.md` -- unstated assumptions surfaced by assumption-miner
+  - `security.md` -- security threats and mitigations from security-researcher
+  - `available-tools.md` -- MCP tools discovered during plan phase
+  - `answers.md` -- user responses to interview questions
 
 ## Plugin Structure
 
