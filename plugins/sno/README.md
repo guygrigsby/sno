@@ -71,6 +71,7 @@ The learn phase spawns parallel Opus agents to research before writing a single 
 |-------|------|
 | `planner` | Task decomposition, dependency graph, wave planning, coverage matrix, MCP tool assignment |
 | `ux-reviewer` | Interaction flows, error UX, CLI/TUI/GUI ergonomics, WCAG 2.1 AA accessibility, colorblind safety |
+| `accessibility-auditor` | WCAG 2.1 AA compliance, keyboard navigation, screen reader support, color contrast, motion sensitivity |
 | `antipattern-detector` | Tech stack gotchas, domain antipatterns, security pitfalls, dependency risks |
 
 **Wave 2 (after wave 1):**
@@ -85,9 +86,15 @@ The learn phase spawns parallel Opus agents to research before writing a single 
 |-------|------|
 | `pr-reviewer` | Full PR-style code review of the diff against the base branch. Reviews correctness, security, performance, consistency, maintainability, and test coverage. Returns a structured verdict (APPROVE / REQUEST CHANGES / COMMENT). Critical issues block shipping. |
 | `security-auditor` | Reviews code diff for security vulnerabilities. Verifies threat mitigations from learn phase are implemented. Checks security requirements coverage. Returns verdict (PASS / FAIL). Critical security issues block shipping. |
+| `accessibility-auditor` | Audits code diff for WCAG 2.1 AA compliance (color contrast, keyboard navigation, screen reader support, semantic HTML, motion sensitivity). Cross-references plan-phase recommendations. Returns verdict (PASS / FAIL). Critical issues block shipping. |
+| `test-coverage` | Identifies new/modified code paths in the diff and verifies each has corresponding test coverage. Gaps block shipping. |
+| `codex review` (conditional) | If the codex plugin is installed, runs an additional code review pass via `/codex:rescue`. Skipped silently if not available. |
+| `readme-check` | Compares `README.md` against the spec and what was built. Flags outdated commands, features, or behaviors. Identifies new work the README should reflect. Changes are applied before shipping. |
 
 ## Design Principles
 
+- **Smallest diff that works.** Make the absolute minimum change to accomplish the exact goal. No drive-by refactors, no adjacent cleanup, no "while we're in here" improvements. If it's not in the spec, it's not in the diff.
+- **Principle of Least Astonishment (PoLA).** Code, APIs, naming, behavior, and structure should do what a reasonable person would expect. No surprises. If something looks like X, it should behave like X.
 - **DDD always.** Every spec identifies bounded contexts, aggregates, factories, and repositories.
 - **5NF target.** Data models normalize fully. Denormalization requires justification.
 - **No assumptions.** Ambiguity becomes an open question, not a guess.
@@ -98,7 +105,11 @@ The learn phase spawns parallel Opus agents to research before writing a single 
 - **Flag it, don't fix it.** Agents report scope surprises -- they don't silently add work. The user decides what's in scope.
 - **Parallelize by default.** Structure work so independent things run simultaneously. Interfaces first to unblock everything else.
 - **Domain names, not generic names.** No `model`, `types`, `utils`, `helpers`. Name things after what they are in the domain.
+- **No triggers or stored procedures.** Avoid database triggers and stored procedures unless explicitly justified. They hide logic, complicate debugging, and create invisible coupling.
+- **Tests are not optional.** Every code change ships with tests. Opting out requires explicit user approval.
+- **Comments are part of the code.** Every public function, type, and interface gets a docstring. Non-obvious logic gets an inline comment explaining *why*, not *what*.
 - **Errors compound downstream.** A mistake caught in the spec costs 1x to fix. The same mistake caught in the plan costs 5x. Caught in code, 25x. This is why learn and plan are thorough.
+- **Minimize function parameters.** Aim for 3-4 parameters max. Group related parameters into a struct or config type when more are needed.
 
 ## License
 

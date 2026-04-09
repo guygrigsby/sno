@@ -41,9 +41,10 @@ You are in the **check** phase of sno. Your goal is to verify the work.
    - Returns: coverage assessment (complete/gaps found) and specific uncovered code paths if any
 
    **README check agent** — also in parallel:
-   - Reads `README.md` and compares it against the spec and what was built
-   - Checks if commands, features, or behaviors described in the README still match reality
+   - Reads `README.md` and compares it against the spec, what was built, **and `CLAUDE.md`**
+   - Checks if commands, features, agents, design principles, or behaviors described in the README still match reality
    - Checks if the completed work adds anything the README should reflect
+   - Cross-references `CLAUDE.md` for drift — agents, phases, principles, or workflows documented in `CLAUDE.md` but missing or outdated in the README
    - Returns: up-to-date (yes/no) and specific changes needed if not
 
    If there are only 1-2 criteria, check them directly instead of spawning agents — but always spawn the PR reviewer regardless.
