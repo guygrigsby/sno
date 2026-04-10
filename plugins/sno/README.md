@@ -17,7 +17,7 @@
 
 Named for [Snow Tha Product](https://www.snowthaproduct.com/) who just handles business.
 
-A lightweight Claude Code plugin for spec-driven development. No bloat, no ceremony -- just a loop.
+A straightforward Claude Code plugin for spec-driven development. No bloat, no ceremony -- just a loop.
 
 ## Install
 

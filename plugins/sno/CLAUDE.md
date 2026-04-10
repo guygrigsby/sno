@@ -1,6 +1,6 @@
 # sno
 
-A lightweight Claude Code plugin for spec-driven development.
+A straightforward Claude Code plugin for spec-driven development.
 
 ## The Loop
 
@@ -37,6 +37,7 @@ A lightweight Claude Code plugin for spec-driven development.
 - **Comments are part of the code.** Every public function, type, and interface gets a docstring. Every module gets a top-level description. Non-obvious logic gets an inline comment explaining *why*, not *what*. If a future reader would need the spec to understand a block of code, it needs a comment. Self-documenting names are necessary but not sufficient.
 - **Errors compound downstream.** A mistake caught in the spec costs 1x to fix. The same mistake caught in the plan costs 5x. Caught in code, 25x. This is why learn and plan are thorough.
 - **Minimize function parameters.** Keep function signatures short — aim for 3-4 parameters max. When more are needed, group related parameters into a struct, options object, or config type. Ten-parameter functions are a code smell that signals missing abstraction.
+- **Clear context between phases.** Every phase reads its state from `.sno/` files on disk (spec, plan, research, state.json) — it does not need the prior phase's conversation history. After each phase completes, the handoff instructs the user to run `/clear` before the next `/sno:<phase>` command, so each phase starts with a lean context. Exception: `--auto` mode runs all phases in a single invocation and cannot clear its own context mid-execution; it intentionally trades context cleanliness for momentum.
 
 ## Learn Phase Agents
 

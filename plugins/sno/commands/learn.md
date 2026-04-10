@@ -192,9 +192,14 @@ Before showing the spec, cross-check:
 If anything was dropped, either add it or document why it was excluded in the Research Coverage section.
 
 ### Step 6: Confirm
-Show the spec to the user. When they confirm, update `.sno/state.json` phase to `plan`. Then tell the user: "Run `/sno:plan` when you're ready to break this into tasks."
+Show the spec to the user. When they confirm, update `.sno/state.json` phase to `plan`. Then tell the user, verbatim:
 
-**STOP.** Do not proceed to the plan phase. Do not start planning, building, or implementing anything. Your job ends here — return control to the user. The next phase starts only when the user explicitly runs `/sno:plan`.
+> Learn phase complete. The next phase reads everything it needs from `.sno/` on disk, so conversation history is no longer needed. Start the plan phase with a clean context:
+>
+>     /clear
+>     /sno:plan
+
+**STOP.** Do not proceed to the plan phase. Do not start planning, building, or implementing anything. Your job ends here — return control to the user. The next phase starts only when the user explicitly runs `/sno:plan` (after `/clear`).
 
 ## Rules
 
@@ -212,5 +217,5 @@ Show the spec to the user. When they confirm, update `.sno/state.json` phase to 
 The STOP gate above does NOT apply when `--auto` is set. With `--auto`:
 - In step 1, use whatever context is already available. Don't ask the user for more — don't present the template. Just brief the agents with what you have.
 - In step 3, pick reasonable defaults for all refinement questions. For blocking questions, attempt to infer from context — if truly unanswerable, document as `(needs-confirmation)` and flag in the spec.
-- In step 6, skip confirmation. Write the spec and immediately advance to the plan phase. Continue through remaining phases without stopping.
+- In step 6, skip confirmation **and skip the `/clear` handoff** — a single run cannot clear its own context mid-execution. Write the spec and immediately advance to the plan phase. Continue through remaining phases in the current context.
 - Step 5 (coverage verification) still runs — never skip it. A spec that drops research findings causes rework downstream.

@@ -78,11 +78,16 @@ You are in the **check** phase of sno. Your goal is to verify the work.
    - If a codex review was run, include its findings in the report.
    - Nits from the PR review can be listed briefly or omitted if the review is otherwise clean.
 
-6. If everything passes **and** the PR review verdict is APPROVE or COMMENT (no critical issues) **and** the security audit verdict is PASS **and** the accessibility audit verdict is PASS **and** test coverage has no gaps on new code paths, update `.sno/state.json` phase to `ship`. Then tell the user: "Run `/sno:ship` to commit and ship."
+6. If everything passes **and** the PR review verdict is APPROVE or COMMENT (no critical issues) **and** the security audit verdict is PASS **and** the accessibility audit verdict is PASS **and** test coverage has no gaps on new code paths, update `.sno/state.json` phase to `ship`. Then tell the user, verbatim:
+
+   > Check phase complete. The ship phase reads the spec and git state directly, so conversation history is no longer needed. Start the ship phase with a clean context:
+   >
+   >     /clear
+   >     /sno:ship
 
    If acceptance criteria pass but the PR review returns REQUEST CHANGES, the security audit returns FAIL, or the accessibility audit returns FAIL, treat the critical issues as failures — do not advance to ship until they're resolved.
 
-**STOP.** Do not proceed to the ship phase. Do not start committing or shipping anything. Your job ends here — return control to the user. The next phase starts only when the user explicitly runs `/sno:ship`.
+**STOP.** Do not proceed to the ship phase. Do not start committing or shipping anything. Your job ends here — return control to the user. The next phase starts only when the user explicitly runs `/sno:ship` (after `/clear`).
 
 7. If something fails (criteria or PR review critical issues), **auto-diagnose**:
    - For each failing criterion **and** each PR review critical issue, spawn a **debug agent per failure in parallel** (via Agent tool). Each gets:
@@ -106,7 +111,7 @@ You are in the **check** phase of sno. Your goal is to verify the work.
 
 The STOP gate above does NOT apply when `--auto` is set. With `--auto`:
 - Run all checks (including PR review) and update the README without pausing.
-- If everything passes and the PR review verdict is APPROVE or COMMENT, immediately advance to the ship phase and continue.
+- If everything passes and the PR review verdict is APPROVE or COMMENT, **skip the `/clear` handoff** (a single run cannot clear its own context mid-execution) and immediately advance to the ship phase.
 - If something fails (criteria or PR review critical issues), run auto-diagnosis. If the fix is small (< 20 lines total), apply it directly. If larger, log the failures and fix plans in `.sno/todos.md` and advance to ship anyway — don't block.
 - PR review warnings are logged but don't block in `--auto` mode.
 - Under `--auto`, a FAIL verdict from `ux-reviewer` check-phase on any **must-have** UX principle (UX-P1b, UX-P3, UX-P5, UX-P7, UX-P10, UX-P11) halts the cycle with the same hard-block semantics as security and accessibility failures — auto-diagnosis runs, and if the fix is not small enough to apply inline the cycle stops rather than advancing to ship. Should-have UX findings from `ux-reviewer` are logged to `.sno/todos.md` but do not block under `--auto`.
