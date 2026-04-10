@@ -9,7 +9,7 @@ This file is versioned with the rest of the sno plugin. Changes to principle con
 **Severity-revision procedure.** A principle's severity may flip between `should-have` and `must-have` only when two conditions are met:
 
 1. A concrete, mechanical `how_to_check` procedure exists that two independent reviewers would apply identically. Judgment-heavy principles stay `should-have`; only mechanically checkable ones may be promoted to `must-have`.
-2. The plugin owner (Guy Grigsby, or a successor maintainer) explicitly approves the flip in the spec for that cycle. A severity flip is never a drive-by edit — it is always a spec-level decision with a Decisions Log entry.
+2. The plugin owner (Guy J Grigsby, or a successor maintainer) explicitly approves the flip in the spec for that cycle. A severity flip is never a drive-by edit — it is always a spec-level decision with a Decisions Log entry.
 
 Demotion from `must-have` to `should-have` follows the same procedure: a reviewer flags that the `how_to_check` has become judgment-heavy in practice (too many false positives), the owner confirms, the flip lands with a Decisions Log entry.
 
