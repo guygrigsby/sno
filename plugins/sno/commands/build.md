@@ -50,6 +50,7 @@ Tell each agent:
 - If the task specifies a `tools:` field in the plan, list those MCP tools so the agent knows they're available for use.
 - Only touch the files listed in your task. Smallest diff that works — no drive-by refactors, no adjacent cleanup.
 - Implement exactly what the task describes. Nothing more.
+- **Write the least code that does the job well.** Prefer the simplest implementation that satisfies the `done` criterion in a maintainable way — fewest lines, fewest helpers, fewest abstractions. Do not add speculative flexibility, config hooks, extension points, or "just in case" error paths the task doesn't require. Every line you add is a line someone else will read, test, and maintain; don't add it unless it earns its place. Clarity and best practices come first — never sacrifice them for brevity — but when two correct solutions exist, ship the smaller one.
 - **Write tests alongside your implementation.** Tests are part of "done" — a task without tests is not complete. Follow the test patterns and framework described in the spec's Test Strategy section (or match existing test patterns in the codebase). If your task modifies behavior, test that behavior.
 - **Verify your work** using the task's `verify` field — run the specified check before reporting success. Ensure all tests (both existing and new) pass.
 - **Self-review before reporting success.** After verifying, re-read all code you wrote or modified with fresh eyes. Look for: typos, wrong variable names, off-by-one errors, missing error handling, null/undefined paths, resource leaks, copy-paste artifacts. If you find something, fix it before reporting success.
@@ -65,6 +66,7 @@ If the plan identifies bottleneck tasks (tasks with the most downstream dependen
 - If an agent returns with a problem, stop the current wave. Report to the user and let them decide how to proceed. Don't auto-fix.
 - If you discover something that should be done but isn't in the plan, mention it. Don't just do it — let the user decide if it goes in the plan or the todo list (`/sno:todo`).
 - Smallest diff that works. Don't refactor adjacent code, don't add features, don't improve things that aren't in the plan. If you see something that could be better, mention it — don't fix it.
+- Least code, best practices. Within each task, write the minimum code that does the job in a maintainable way. Fewer files, fewer abstractions, fewer lines. No speculative flexibility, no premature helpers, no "just in case" handling. Clarity and best practices are non-negotiable — but when two correct solutions exist, ship the smaller one.
 - If the user says "just do it all", execute all waves without pausing between them. Still parallelize within each wave.
 - If there's only one task remaining, just do it — don't spin up an agent for a single task.
 

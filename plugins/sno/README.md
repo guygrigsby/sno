@@ -94,6 +94,7 @@ The learn phase spawns parallel Opus agents to research before writing a single 
 ## Design Principles
 
 - **Smallest diff that works.** Make the absolute minimum change to accomplish the exact goal. No drive-by refactors, no adjacent cleanup, no "while we're in here" improvements. If it's not in the spec, it's not in the diff.
+- **Less code is better code.** Within a task, write the minimum code that does the job in a maintainable way. Fewer files, fewer abstractions, fewer helpers, fewer lines. No speculative flexibility, no premature extension points. Clarity and best practices are non-negotiable -- but when two correct solutions exist, ship the smaller one. Every line is a liability someone must read, test, and maintain.
 - **Principle of Least Astonishment (PoLA).** Code, APIs, naming, behavior, and structure should do what a reasonable person would expect. No surprises. If something looks like X, it should behave like X.
 - **DDD always.** Every spec identifies bounded contexts, aggregates, factories, and repositories.
 - **5NF target.** Data models normalize fully. Denormalization requires justification.

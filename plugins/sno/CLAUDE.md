@@ -19,6 +19,7 @@ A lightweight Claude Code plugin for spec-driven development.
 ## Design Principles
 
 - **Smallest diff that works.** Make the absolute minimum change to accomplish the exact goal. No drive-by refactors, no adjacent cleanup, no "while we're in here" improvements. If it's not in the spec, it's not in the diff.
+- **Less code is better code.** Within a task, write the minimum code that does the job in a maintainable way. Every line is a liability someone must read, test, debug, and maintain. Fewer files, fewer abstractions, fewer helpers, fewer lines. Terseness is not the goal — clarity is — but when two correct solutions exist, pick the smaller one. Do not build speculative flexibility, hypothetical extension points, or premature abstractions. Code you didn't write cannot break.
 - **Principle of Least Astonishment (PoLA).** Code, APIs, naming, behavior, and structure should do what a reasonable person would expect. No surprises. If something looks like X, it should behave like X. If a pattern exists, follow it. If a convention is established, respect it. When in doubt, pick the option that would make someone say "of course" instead of "wait, what?"
 - **DDD always.** Every spec identifies bounded contexts and aggregates.
 - **5NF target.** Data models normalize fully; denormalization requires justification.

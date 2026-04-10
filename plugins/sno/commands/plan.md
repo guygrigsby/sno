@@ -131,6 +131,7 @@ Each task must have all five fields: status, files, verify, done, and dependenci
 - 3-10 tasks is the sweet spot. If you have more than 10, you're planning too granularly. If you have fewer than 3, the spec might be too small to need a plan (that's fine — just make 1-2 tasks).
 - Every implementation task must include tests alongside the implementation. Tests are always required — they are part of "done," not bonus work. Only skip tests if the user explicitly opts out.
 - Smallest diff that works. Each task should produce the minimum change needed. No bundled cleanup, no "while we're in here" improvements.
+- Least code, best practices. Plan the simplest implementation that satisfies the task in a maintainable way — fewest files, fewest abstractions, fewest lines. Do not plan speculative flexibility, configuration hooks, or extension points the spec doesn't require. If a task's approach could be expressed more compactly without sacrificing clarity or best practices, plan the compact version.
 - Don't add tasks the user didn't ask for. No "update docs" or unrelated cleanup unless the spec says so.
 - Maximize parallelism. If two tasks CAN be independent, make them independent. Structure the work to minimize sequential bottlenecks.
 
