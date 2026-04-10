@@ -1,9 +1,9 @@
 {
   "name": "sno",
-  "version": "1.18.0",
-  "description": "Lightweight spec-driven development. Learn, plan, build, check, ship.",
+  "version": "1.19.0",
+  "description": "Straightforward spec-driven development. Learn, plan, build, check, ship.",
   "author": {
-    "name": "Guy Grigsby"
+    "name": "Guy J Grigsby"
   },
   "license": "MIT"
 }

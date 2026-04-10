@@ -33,9 +33,14 @@ You are in the **build** phase of sno. Your goal is to execute the plan as fast 
 
 4. **Move to next wave.** Repeat until all tasks are complete.
 
-5. When all tasks are done, update `.sno/state.json` phase to `check`. Then tell the user: "Run `/sno:check` to verify the work."
+5. When all tasks are done, update `.sno/state.json` phase to `check`. Then tell the user, verbatim:
 
-**STOP.** Do not proceed to the check phase. Do not start verifying anything. Your job ends here — return control to the user. The next phase starts only when the user explicitly runs `/sno:check`.
+> Build phase complete. The check phase reviews the git diff directly, so conversation history is no longer needed. Start the check phase with a clean context:
+>
+>     /clear
+>     /sno:check
+
+**STOP.** Do not proceed to the check phase. Do not start verifying anything. Your job ends here — return control to the user. The next phase starts only when the user explicitly runs `/sno:check` (after `/clear`).
 
 ## Parallel agent instructions
 
@@ -75,4 +80,4 @@ If the plan identifies bottleneck tasks (tasks with the most downstream dependen
 The STOP gate above does NOT apply when `--auto` is set. With `--auto`:
 - Execute all waves without pausing between them (same as "just do it all").
 - If an agent returns with a problem, attempt a reasonable fix once. If that fails, log the problem in `.sno/todos.md` and continue with remaining tasks.
-- When all tasks are done, immediately advance to the check phase. Continue through remaining phases without stopping.
+- When all tasks are done, **skip the `/clear` handoff** (a single run cannot clear its own context mid-execution) and immediately advance to the check phase. Continue through remaining phases in the current context.

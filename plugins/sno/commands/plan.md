@@ -115,9 +115,14 @@ Update `.sno/state.json` phase to `plan`.
 
 Each task must have all five fields: status, files, verify, done, and dependencies in the heading.
 
-10. Update `.sno/state.json` phase to `build`. Then tell the user: "Run `/sno:build` to start executing the plan."
+10. Update `.sno/state.json` phase to `build`. Then tell the user, verbatim:
 
-**STOP.** Do not proceed to the build phase. Do not start implementing anything. Your job ends here — return control to the user. The next phase starts only when the user explicitly runs `/sno:build`.
+> Plan phase complete. The build phase reads the plan from `.sno/plan.md`, so conversation history is no longer needed. Start the build phase with a clean context:
+>
+>     /clear
+>     /sno:build
+
+**STOP.** Do not proceed to the build phase. Do not start implementing anything. Your job ends here — return control to the user. The next phase starts only when the user explicitly runs `/sno:build` (after `/clear`).
 
 ## Dependency rules
 - Every task must declare `(depends: none)` or `(depends: <task numbers>)`.
@@ -139,7 +144,7 @@ Each task must have all five fields: status, files, verify, done, and dependenci
 
 The STOP gate above does NOT apply when `--auto` is set. With `--auto`:
 - Still present open questions (step 4) — these MUST be answered even in auto mode, since guessing leads to rework.
-- Skip the review loop (step 8). Write the plan and immediately advance to the build phase. Continue through remaining phases without stopping.
+- Skip the review loop (step 8) **and skip the `/clear` handoff** — a single run cannot clear its own context mid-execution. Write the plan and immediately advance to the build phase. Continue through remaining phases in the current context.
 - Tool discovery (step 2), all parallel agents (step 3), and critical review (step 6) still run — never skip analysis.
 - Coverage verification (step 7) still runs — never skip it.
 - If no agents have open questions, proceed directly to writing the plan and advancing.
