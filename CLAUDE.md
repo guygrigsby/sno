@@ -27,6 +27,15 @@ plugins/
 3. Add an entry to `.claude-plugin/marketplace.json` with `git-subdir` source pointing to `plugins/<name>`
 4. Add a `CLAUDE.md` in the plugin directory describing the plugin
 
+## Versioning
+
+**The plugin version lives in two places and they MUST be bumped together:**
+
+1. `plugins/<name>/.claude-plugin/plugin.json` — the plugin's own manifest
+2. `.claude-plugin/marketplace.json` — the marketplace entry users install from
+
+If these drift, users install a stale version. Any commit that bumps one must bump the other in the same commit. When shipping a new version, grep for the old version string to confirm nothing was missed.
+
 ## Plugins
 
 - **[sno](plugins/sno/CLAUDE.md)** -- spec-driven development loop (learn, plan, build, check, ship)
