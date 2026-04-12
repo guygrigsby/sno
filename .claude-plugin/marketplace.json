@@ -8,7 +8,7 @@
     {
       "name": "sno",
       "description": "Straightforward spec-driven development. Learn, plan, build, check, ship.",
-      "version": "1.21.0",
+      "version": "1.22.0",
       "source": {
         "source": "git-subdir",
         "url": "https://github.com/guygrigsby/claude-plugins.git",
