@@ -112,6 +112,7 @@ The learn phase spawns parallel Opus agents to research before writing a single 
 - **Tests are not optional.** Every code change ships with tests. Opting out requires explicit user approval.
 - **Comments are part of the code.** Every public function, type, and interface gets a docstring. Non-obvious logic gets an inline comment explaining *why*, not *what*.
 - **Errors compound downstream.** A mistake caught in the spec costs 1x to fix. The same mistake caught in the plan costs 5x. Caught in code, 25x. This is why learn and plan are thorough.
+- **Keep files small.** Target ~200 lines per source file; never exceed 400. Files that outgrow this are signaling a missing boundary — split along domain seams before the file becomes unreadable.
 - **Minimize function parameters.** Aim for 3-4 parameters max. Group related parameters into a struct or config type when more are needed.
 
 ## License

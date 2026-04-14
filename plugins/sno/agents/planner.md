@@ -148,6 +148,7 @@ Each task MUST have all five fields: status, files, verify, done, and dependenci
 - 3-10 tasks. More than 10 is too granular. Fewer than 3 means the spec is small enough to just do.
 - Tests are always required. Each implementation task must either include tests inline (in the same task) or have a corresponding test task that depends on it. A task without test coverage is incomplete. Only skip tests if the user explicitly opts out.
 - Smallest diff that works. Each task should produce the minimum change needed — no bundled cleanup, no "improve adjacent code" subtasks. If something could be better but isn't required by the spec, leave it out.
+- Keep files small. Target ~200 lines per source file (Go and similar); hard cap at 400 lines. When a task would push a file past ~200 lines, prefer splitting it along domain seams (new file, new package) rather than appending. When an existing file is already near the cap, plan a task to split it before piling on more. Flag file-size surprises rather than silently refactoring unrelated code.
 - Comments are part of done. Every task that creates public APIs, types, or new files implicitly includes writing docstrings and module-level comments. Don't create separate "add comments" tasks — comments ship with the code.
 - Don't add tasks the user didn't ask for. No bonus docs or cleanup unless the spec requires it.
 - Maximize parallelism. The ideal plan has a wide wave 1 and a short critical path.
