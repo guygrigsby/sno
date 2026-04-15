@@ -42,10 +42,11 @@ You are in the **ship** phase of sno. Your goal is to ship the work.
 5. **Close the cycle**:
    - Update `.sno/state.json` phase to `done`.
    - Tell the user the cycle is complete.
-   - Check for outstanding todo items in both places:
+   - Check for outstanding todo items. Use the same backend preference as `/sno:todo` (beads → GitHub → local):
+     - Beads: `bd list --label sno:todo --status open` (if beads is initialized in the project)
      - GitHub: `gh issue list --label "sno:todo" --state open` (if `gh` is available)
      - Local: `.sno/todos.md`
-   - If there are items in either, mention them: "You have N items in the todo list for next time." Include the GitHub issue list URL if applicable.
+   - If there are items in any, mention them: "You have N items in the todo list for next time." Include the issue list URL when applicable.
 
 ## Rules
 - On `sno/` branches, push and create a PR to main automatically — no confirmation needed.

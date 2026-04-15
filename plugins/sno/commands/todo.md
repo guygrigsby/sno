@@ -4,13 +4,35 @@ description: "Add, list, or manage parking lot items for later. Usage: /sno:todo
 argument-hint: "item to add (optional)"
 ---
 
-You manage the sno todo list. Todos go to **GitHub issues** when possible, falling back to a local file.
+You manage the sno todo list. Todos prefer **beads** when available, fall back to **GitHub issues**, then to a local file.
 
-## Step 1: Detect GitHub repo
+## Step 1: Detect backend
 
-Run `gh repo view --json nameWithOwner -q .nameWithOwner` (suppress stderr).
-- If it succeeds, you have a GitHub repo. Use **GitHub mode**.
-- If it fails (no `gh`, no remote, not a GitHub repo), use **local mode**.
+Try in order — use the first one that succeeds:
+
+1. **Beads**: run `bd status 2>/dev/null` (or check for `.beads/` directory). If the project has beads initialized, use **beads mode**.
+2. **GitHub**: run `gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null`. If it succeeds, use **GitHub mode**.
+3. **Local**: otherwise use **local mode**.
+
+Never ask the user which mode to use — just detect and go.
+
+---
+
+## Beads mode (preferred)
+
+**If the user provides an item:**
+1. Create a todo with `bd todo add "<item>"` (this creates a task-type issue at priority 2 with the `todo` convention).
+2. Tag it with `sno:todo` so it's distinguishable: `bd tag <id> sno:todo` (create the label first if needed via `bd label create sno:todo` — check `bd label --help` for exact syntax).
+3. Confirm with the issue ID: "Created <id>: <title>"
+
+**If no item is provided:**
+1. List open sno todos: `bd list --label sno:todo --status open` (or `bd todo list` if the user only uses beads for sno todos).
+2. If none exist, say "Todo list is empty."
+3. Display the list.
+4. Ask the user what they want to do:
+   - Add an item (`bd todo add "<item>"`)
+   - Close an item (`bd close <id>` or `bd todo done <id>`)
+   - Promote an item to a new sno cycle (start `/sno:learn` with the issue as context, then close it)
 
 ---
 
@@ -63,5 +85,5 @@ Run `gh repo view --json nameWithOwner -q .nameWithOwner` (suppress stderr).
 - Keep it simple. This is a parking lot, not a project management tool.
 - Items should be short — one line each.
 - Don't auto-organize, categorize, or prioritize unless asked.
-- GitHub mode is always preferred when available. Never ask the user which mode to use — just detect and go.
-- When creating issues, keep the title concise. If the user provides extra context, put it in the issue body.
+- Backend preference is always **beads → GitHub → local**. Never ask the user which mode to use — just detect and go.
+- When creating issues, keep the title concise. If the user provides extra context, put it in the issue body (`--description` for beads, `--body` for gh).
